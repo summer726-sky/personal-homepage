@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* —— 设计 token ——
+   暖纸底色 + 近黑墨色 + 极少量克制的强调色。
+   想换气质时，只改这里，全站跟随。 */
+@theme {
+  --color-paper: #faf7f1;
+  --color-paper-soft: #f3eee2;
+  --color-ink: #2a2724;
+  --color-ink-soft: #6f6a62;
+  --color-ink-faint: #a8a299;
+  --color-rule: #e8e2d6;
+  --color-accent: #9a5a3c;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Songti SC", "Source Han Serif SC", "Noto Serif SC", "STSong",
+    "SimSun", Georgia, serif;
+}
+
+:root {
+  --background: #faf7f1;
+  --foreground: #2a2724;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #e3d4bf;
+  color: #2a2724;
+}
+
+/* 隐藏移动端导航的横向滚动条 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 极轻的滚动入场，服务于节奏而非炫技 */
+.fade-in {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+.fade-in-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fade-in {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
