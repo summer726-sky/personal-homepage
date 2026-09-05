@@ -1,16 +1,30 @@
 @import "tailwindcss";
 
-/* —— 设计 token ——
-   暖纸底色 + 近黑墨色 + 极少量克制的强调色。
-   想换气质时，只改这里，全站跟随。 */
+/* —— 设计 token · V2 ———————————————————————————————————————
+   温暖偏暗的环境 + 温暖纸张 + 极少量暖光。
+   想换气质，只改这里。不堆砌复古符号。内容才是视觉主体。 */
 @theme {
-  --color-paper: #faf7f1;
-  --color-paper-soft: #f3eee2;
-  --color-ink: #2a2724;
-  --color-ink-soft: #6f6a62;
-  --color-ink-faint: #a8a299;
-  --color-rule: #e8e2d6;
-  --color-accent: #9a5a3c;
+  /* 环境（warm dark，非纯黑） */
+  --color-env: #17120d;
+  --color-env-2: #221a12;
+  --color-env-3: #2c2216;
+
+  /* 纸张（温暖、有时间感） */
+  --color-paper: #e9dcc1;
+  --color-paper-2: #ddccb0;
+  --color-paper-edge: #c9b793;
+
+  /* 墨色（纸上文字） */
+  --color-ink: #2a2419;
+  --color-ink-soft: #5c5040;
+  --color-ink-faint: #8a7c63;
+
+  /* 暖光 / 环境里的暖色文字 */
+  --color-glow: #d8a86a;
+  --color-ember: #c9b08a;
+  --color-ember-soft: #8d7d62;
+  --color-ember-faint: #5e5341;
+  --color-rule: #cdbf9f;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
@@ -19,54 +33,342 @@
 }
 
 :root {
-  --background: #faf7f1;
-  --foreground: #2a2724;
+  --background: #17120d;
+  --foreground: #c9b08a;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
+html,
 body {
-  background: var(--background);
+  min-height: 100%;
+}
+
+/* 稳定的环境光：固定一层，不随滚动走 */
+body {
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+      130% 90% at 50% 0%,
+      #2a2014 0%,
+      #1a140d 45%,
+      #120c07 100%
+    );
+  z-index: -1;
 }
 
 ::selection {
-  background: #e3d4bf;
-  color: #2a2724;
+  background: rgba(216, 168, 106, 0.32);
+  color: #f3e6cf;
 }
 
-/* 隐藏移动端导航的横向滚动条 */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* —— 空间转场 · 收束 → 聚拢 → 暂停 → 展开 ————————————————
+   只让空间回应，不让空间表演。 */
+.space-root {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1.5rem 4rem;
+  transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-/* 极轻的滚动入场，服务于节奏而非炫技 */
-.fade-in {
+.space-root.is-leaving {
   opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 700ms ease, transform 700ms ease;
+  filter: blur(4px);
+  transform: scale(0.975) translateY(8px);
 }
-.fade-in-visible {
-  opacity: 1;
+
+/* 入场：逐行 reveal，有轻微时间差与 blur→clear */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+.reveal {
+  opacity: 0;
+  animation: reveal 0.85s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 100ms);
+}
+
+/* —— 纸张 ————————————————————————————————————————————— */
+.paper {
+  position: relative;
+  background: linear-gradient(180deg, var(--color-paper), var(--color-paper-2));
+  border: 1px solid rgba(201, 183, 147, 0.55);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 24px 48px -24px rgba(0, 0, 0, 0.55),
+    inset 0 0 60px rgba(120, 90, 40, 0.05);
+  color: var(--color-ink);
+}
+
+/* —— 环境碎片：非常淡，只暗示"这里已经有内容"，不是 UI ————— */
+.env-fragment {
+  color: var(--color-ember-faint);
+  font-family: var(--font-serif);
+  opacity: 0.55;
+}
+
+/* —— 门 / 房间 ————————————————————————————————————————— */
+.door {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: min(44vw, 28rem);
+  height: min(70vh, 32rem);
+  padding: 2.75rem 2.25rem;
+  background: linear-gradient(180deg, #1e160f 0%, #150f09 100%);
+  border: 1px solid rgba(201, 183, 147, 0.16);
+  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75),
+    inset 0 0 80px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: transform 0.55s cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 0.55s ease, border-color 0.55s ease;
+  text-align: left;
+}
+button.door {
+  cursor: pointer;
+}
+.door-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    55% 45% at 50% 48%,
+    rgba(216, 168, 106, 0.22),
+    transparent 70%
+  );
+  opacity: 0.12;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+/* 门缝里的一线暖光 */
+.door-crack {
+  position: absolute;
+  top: 8%;
+  bottom: 8%;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(216, 168, 106, 0.5),
+    transparent
+  );
+  opacity: 0.18;
+  filter: blur(0.5px);
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.door-left .door-crack {
+  right: 0;
+}
+.door-right .door-crack {
+  left: 0;
+}
+.door-label {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  color: var(--color-ember);
+  letter-spacing: 0.02em;
+}
+.door-zh {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--color-ember-faint);
+}
+.door-sliver {
+  font-size: 0.74rem;
+  color: var(--color-ember-faint);
+  opacity: 0.65;
+}
+.door-whisper {
+  position: absolute;
+  left: 2.25rem;
+  bottom: 1.5rem;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.86rem;
+  color: var(--color-ember-soft);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+.door:hover .door-glow,
+.door:focus-visible .door-glow {
+  opacity: 0.55;
+}
+.door:hover .door-crack,
+.door:focus-visible .door-crack {
+  opacity: 0.9;
+}
+.door:hover .door-whisper,
+.door:focus-visible .door-whisper {
+  opacity: 0.85;
+  transform: none;
+}
+.door-left:hover,
+.door-left:focus-visible {
+  transform: translateX(-8px);
+}
+.door-right:hover,
+.door-right:focus-visible {
+  transform: translateX(8px);
+}
+.door-left:hover {
+  border-color: rgba(201, 183, 147, 0.3);
+}
+.door-right:hover {
+  border-color: rgba(201, 183, 147, 0.22);
+}
+
+/* —— Personal 三张纸：松弛、略微不规则 ——————————————————— */
+.paper-card {
+  position: relative;
+  padding: 1.75rem 1.5rem 1.85rem;
+  min-width: 12rem;
+  transform: rotate(var(--rot, 0deg)) translateY(0);
+  transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 0.5s ease;
+}
+.paper-card .paper-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  color: var(--color-ink);
+}
+.paper-card .paper-meaning {
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--color-ink-soft);
+}
+.paper-card .paper-whisper {
+  margin-top: 1.1rem;
+  font-family: var(--color-ink-soft);
+  font-style: italic;
+  font-size: 0.84rem;
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.paper-card.enterable {
+  cursor: pointer;
+}
+.paper-card.enterable:hover {
+  transform: rotate(var(--rot, 0deg)) translateY(-3px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18),
+    0 34px 56px -28px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(120, 90, 40, 0.05);
+}
+.paper-card.enterable:hover .paper-whisper,
+.paper-card.enterable:focus-visible .paper-whisper {
+  opacity: 0.9;
   transform: none;
 }
 
+/* —— Things 内容卡：纸张实体感 + 轻微层叠 + 露出的纸边 ————— */
+.things-card {
+  position: relative;
+  width: min(90vw, 30rem);
+  padding: 2rem 2rem 2.25rem;
+}
+.things-edge {
+  position: absolute;
+  left: 50%;
+  width: calc(100% - 2.5rem);
+  height: 100%;
+  background: linear-gradient(180deg, var(--color-paper-2), #d2bf9c);
+  border: 1px solid rgba(201, 183, 147, 0.4);
+  box-shadow: 0 12px 30px -20px rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.things-edge.edge-2 {
+  width: calc(100% - 4rem);
+  background: #d2bf9c;
+  opacity: 0.7;
+}
+.things-card:hover .things-edge {
+  transform: translateX(-50%) translateY(2px) rotate(0.2deg);
+}
+.image-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed rgba(201, 183, 147, 0.5);
+  color: var(--color-ink-faint);
+  font-size: 0.78rem;
+  background: rgba(120, 90, 40, 0.04);
+}
+
+/* 极细向下箭头 */
+.arrow-down {
+  color: var(--color-ember-faint);
+  opacity: 0;
+  animation: reveal 0.9s ease 0.8s both;
+  transition: color 0.4s ease;
+}
+.arrow-down:hover {
+  color: var(--color-ember);
+}
+
+/* —— 阅读状态：安静 ————————————————————————————————————— */
+.reading-back {
+  color: var(--color-ember-faint);
+  font-size: 0.82rem;
+  transition: color 0.3s ease;
+}
+.reading-back:hover {
+  color: var(--color-ember);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+  .space-root,
+  .door,
+  .paper,
+  .paper-card,
+  .things-card,
+  .things-edge,
+  .arrow-down,
+  .reading-back {
+    transition: none !important;
   }
-  .fade-in {
+  .space-root.is-leaving {
     opacity: 1;
+    filter: none;
     transform: none;
-    transition: none;
+  }
+  .reveal,
+  .arrow-down {
+    animation: none !important;
+    opacity: 1;
+  }
+  .door-whisper,
+  .paper-whisper {
+    opacity: 0.85;
+    transform: none;
+  }
+}
+
+/* 移动端：门改为上下、纸改为纵向错落 */
+@media (max-width: 720px) {
+  .door {
+    width: min(88vw, 24rem);
+    height: auto;
+    min-height: 16rem;
   }
 }

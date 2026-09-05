@@ -1,23 +1,17 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/sections/Footer";
 import { profile } from "@/data/profile";
 
 export const metadata: Metadata = {
-  title: `${profile.name} · 个人主页`,
-  description: profile.tagline,
+  title: `${profile.name} · 私人空间`,
+  description: "推开一扇门，进入一个属于我的空间。",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
-      <body className="flex min-h-full flex-col bg-paper text-ink">
-        <Nav />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
