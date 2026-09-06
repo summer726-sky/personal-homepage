@@ -7,6 +7,13 @@
 import type { CSSProperties } from "react";
 import { personal } from "@/data/content";
 import { EnvFragment } from "./primitives";
+import {
+  TraceImage,
+  TraceLightDot,
+  TraceWindowCorner,
+  TraceFadedWriting,
+  TracePrintGhost,
+} from "./traces";
 
 export function Personal({ onThings }: { onThings: () => void }) {
   const { things, ideas, moments, fragments } = personal;
@@ -20,6 +27,25 @@ export function Personal({ onThings }: { onThings: () => void }) {
       </p>
 
       <div className="relative">
+        {/* —— 视觉痕迹：空间里本来就有的东西，全部在纸的下层、远处 —— */}
+        {/* 右上一团模糊的窗光，配一盏极慢呼吸的远灯 */}
+        <TraceImage className="absolute -top-12 right-[4%] w-36 sm:w-44" />
+        <TraceLightDot
+          className="absolute right-[17%] top-2 h-1.5 w-1.5"
+          style={{ animationDelay: "0s" } as CSSProperties}
+        />
+        {/* 左侧墙里半扇窗框，只露一角 */}
+        <TraceWindowCorner className="absolute -left-4 top-[34%] w-14" />
+        {/* 另一盏远灯，低、远、不同的呼吸节奏 */}
+        <TraceLightDot
+          className="absolute left-[6%] top-[62%] h-[5px] w-[5px]"
+          style={{ animationDelay: "8s", animationDuration: "19s" } as CSSProperties}
+        />
+        {/* 中下空处：被擦掉的一行字 */}
+        <TraceFadedWriting className="absolute bottom-[6%] left-[28%] w-28" />
+        {/* 纸间空墙上：一张被撕掉的东西留下的色差 */}
+        <TracePrintGhost className="absolute right-[31%] top-[47%] h-24 w-20 rotate-2" />
+
         {/* Things · 上方偏中，较大 */}
         <button
           type="button"

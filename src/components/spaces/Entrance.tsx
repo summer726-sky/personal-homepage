@@ -7,6 +7,7 @@
 import type { CSSProperties } from "react";
 import { entrance } from "@/data/content";
 import { ArrowDown } from "./primitives";
+import { TraceLightDot } from "./traces";
 
 // 每行一个轻微的横向错位，让排版不死板
 const offsets = ["0.15rem", "-0.35rem", "0.1rem"];
@@ -14,9 +15,12 @@ const offsets = ["0.15rem", "-0.35rem", "0.1rem"];
 export function Entrance({ onContinue }: { onContinue: () => void }) {
   return (
     <div
-      className="mx-auto flex w-full max-w-2xl flex-col justify-between"
+      className="relative mx-auto flex w-full max-w-2xl flex-col justify-between"
       style={{ minHeight: "64vh" }}
     >
+      {/* 很远的一盏灯：入口处唯一的痕迹，安静地在 */}
+      <TraceLightDot className="absolute -top-6 right-[8%] h-1.5 w-1.5" />
+
       <div className="flex flex-col gap-7 pt-4">
         {entrance.lines.map((line, i) => (
           <p

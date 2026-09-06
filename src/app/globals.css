@@ -1,45 +1,50 @@
 @import "tailwindcss";
 
-/* —— 设计 token · V2 ———————————————————————————————————————
-   温暖偏暗的环境 + 温暖纸张 + 极少量暖光。
-   想换气质，只改这里。不堆砌复古符号。内容才是视觉主体。 */
+/* —— 设计 token · V3 ———————————————————————————————————————
+   Blue hour · 冷灰蓝城市私人空间。
+   色彩角色（不要混用）：
+     Gray / Blue-gray / Deep Blue-gray → 空间本身
+     Purple（极低透明度）              → 反射：阴影深处 / 玻璃
+     Cool Yellow / Warm White          → 光：窗户、路灯、远灯、高光
+   光照约定：暖光来自右上方；冷雾弥漫；紫色只在深处反射。
+   想换气质，只改这里。内容才是视觉主体。 */
 @theme {
-  /* 环境（warm dark，非纯黑） */
-  --color-env: #17120d;
-  --color-env-2: #221a12;
-  --color-env-3: #2c2216;
+  /* 空间（deep blue-gray，非纯黑） */
+  --color-env: #131a26;
+  --color-env-2: #1a2332;
+  --color-env-3: #232f42;
 
-  /* 纸张（温暖、有时间感） */
-  --color-paper: #e9dcc1;
-  --color-paper-2: #ddccb0;
-  --color-paper-edge: #c9b793;
+  /* 纸张（blue hour 里的冷近白：被蓝雾包围、被暖光擦到边） */
+  --color-paper: #e8edf3;
+  --color-paper-2: #d9e1ea;
+  --color-paper-edge: #b7c5d5;
 
-  /* 墨色（纸上文字） */
-  --color-ink: #2a2419;
-  --color-ink-soft: #5c5040;
-  --color-ink-faint: #8a7c63;
+  /* 墨色（纸上文字：深蓝灰墨） */
+  --color-ink: #1d2634;
+  --color-ink-soft: #505e70;
+  --color-ink-faint: #78859a;
 
-  /* 暖光 / 环境里的暖色文字 */
-  --color-glow: #d8a86a;
-  --color-ember: #c9b08a;
-  --color-ember-soft: #8d7d62;
-  --color-ember-faint: #5e5341;
-  --color-rule: #cdbf9f;
-
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Songti SC", "Source Han Serif SC", "Noto Serif SC", "STSong",
-    "SimSun", Georgia, serif;
+  /* 光 / 暗环境里的冷色文字 */
+  --color-glow: #f0d3a2; /* 暖光源：窗、灯、高光 */
+  --color-ember: #d3dce7; /* 暗环境主文字：月光冷白 */
+  --color-ember-soft: #93a1b5;
+  --color-ember-faint: #617088;
+  --color-rule: #4b5a72;
+  --color-reflect: #8d86c3; /* 紫色：只作反射，不作主题 */
 }
 
 :root {
-  --background: #17120d;
-  --foreground: #c9b08a;
+  --background: #131a26;
+  --foreground: #c3cedb;
 }
 
 html,
 body {
   min-height: 100%;
+}
+/* 痕迹允许向容器外探出（融入背景），但不产生横向滚动 */
+body {
+  overflow-x: clip;
 }
 
 /* 稳定的环境光：固定一层，不随滚动走 */
@@ -54,18 +59,35 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: radial-gradient(
-      130% 90% at 50% 0%,
-      #2a2014 0%,
-      #1a140d 45%,
-      #120c07 100%
-    );
+  background:
+    /* 右上暖光：一扇看不见的窗 / 街灯 */
+    radial-gradient(62% 50% at 78% 6%, rgba(240, 211, 162, 0.11), transparent 62%),
+    /* 左下深处的紫色反射：湿地面 / 玻璃的回弹 */
+    radial-gradient(70% 42% at 50% 108%, rgba(141, 134, 195, 0.09), transparent 70%),
+    /* 左侧冷调环境填充 */
+    radial-gradient(85% 70% at 12% 32%, rgba(120, 150, 190, 0.08), transparent 66%),
+    /* 中央雾 */
+    radial-gradient(48% 36% at 50% 56%, rgba(190, 205, 225, 0.05), transparent 72%),
+    /* 蓝灰基底 */
+    linear-gradient(180deg, #182131 0%, #141c29 46%, #101724 100%);
+  z-index: -2;
+}
+/* 颗粒：粗尺度空气颗粒，冷色、极淡 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.34' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.62 0 0 0 0 0.70 0 0 0 0 0.82 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23n)'/%3E%3C/svg%3E")
+    repeat;
+  mix-blend-mode: screen;
+  opacity: 0.55;
   z-index: -1;
+  pointer-events: none;
 }
 
 ::selection {
-  background: rgba(216, 168, 106, 0.32);
-  color: #f3e6cf;
+  background: rgba(240, 211, 162, 0.22);
+  color: #f2eee4;
 }
 
 /* —— 空间转场 · 收束 → 聚拢 → 暂停 → 展开 ————————————————
@@ -103,13 +125,14 @@ body::before {
   animation-delay: calc(var(--i, 0) * 100ms);
 }
 
-/* —— 纸张 ————————————————————————————————————————————— */
+/* —— 纸张：blue hour 里的冷白纸 —————————————————————————— */
 .paper {
   position: relative;
   background: linear-gradient(180deg, var(--color-paper), var(--color-paper-2));
-  border: 1px solid rgba(201, 183, 147, 0.55);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18), 0 24px 48px -24px rgba(0, 0, 0, 0.55),
-    inset 0 0 60px rgba(120, 90, 40, 0.05);
+  border: 1px solid rgba(150, 170, 195, 0.5);
+  box-shadow: 0 1px 2px rgba(8, 14, 26, 0.35),
+    0 24px 48px -24px rgba(8, 14, 26, 0.65),
+    inset 0 0 60px rgba(60, 90, 130, 0.06);
   color: var(--color-ink);
 }
 
@@ -120,7 +143,7 @@ body::before {
   opacity: 0.55;
 }
 
-/* —— 门 / 房间 ————————————————————————————————————————— */
+/* —— 门 / 房间：夜色里的深色平面，像临街的窗 ————————————— */
 .door {
   position: relative;
   display: flex;
@@ -129,14 +152,29 @@ body::before {
   width: min(44vw, 28rem);
   height: min(70vh, 32rem);
   padding: 2.75rem 2.25rem;
-  background: linear-gradient(180deg, #1e160f 0%, #150f09 100%);
-  border: 1px solid rgba(201, 183, 147, 0.16);
-  box-shadow: 0 30px 60px -28px rgba(0, 0, 0, 0.75),
-    inset 0 0 80px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, #1c2536 0%, #121a28 100%);
+  border: 1px solid rgba(120, 145, 180, 0.15);
+  box-shadow: 0 30px 60px -28px rgba(5, 10, 20, 0.8),
+    inset 0 0 80px rgba(8, 14, 28, 0.55);
   overflow: hidden;
   transition: transform 0.55s cubic-bezier(0.2, 0.6, 0.2, 1),
     box-shadow 0.55s ease, border-color 0.55s ease;
   text-align: left;
+}
+/* 玻璃般的反光：一道冷斜光 + 深处一点紫反射 */
+.door::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 30% at 70% 100%, rgba(141, 134, 195, 0.07), transparent 75%),
+    linear-gradient(
+      118deg,
+      transparent 42%,
+      rgba(170, 190, 220, 0.045) 49%,
+      transparent 57%
+    );
 }
 button.door {
   cursor: pointer;
@@ -146,14 +184,14 @@ button.door {
   inset: 0;
   background: radial-gradient(
     55% 45% at 50% 48%,
-    rgba(216, 168, 106, 0.22),
+    rgba(240, 211, 162, 0.16),
     transparent 70%
   );
-  opacity: 0.12;
+  opacity: 0.1;
   transition: opacity 0.6s ease;
   pointer-events: none;
 }
-/* 门缝里的一线暖光 */
+/* 门缝里的一线暖光：房间里的窗 */
 .door-crack {
   position: absolute;
   top: 8%;
@@ -162,7 +200,7 @@ button.door {
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(216, 168, 106, 0.5),
+    rgba(240, 211, 162, 0.55),
     transparent
   );
   opacity: 0.18;
@@ -208,7 +246,7 @@ button.door {
 }
 .door:hover .door-glow,
 .door:focus-visible .door-glow {
-  opacity: 0.55;
+  opacity: 0.5;
 }
 .door:hover .door-crack,
 .door:focus-visible .door-crack {
@@ -228,10 +266,10 @@ button.door {
   transform: translateX(8px);
 }
 .door-left:hover {
-  border-color: rgba(201, 183, 147, 0.3);
+  border-color: rgba(120, 145, 180, 0.32);
 }
 .door-right:hover {
-  border-color: rgba(201, 183, 147, 0.22);
+  border-color: rgba(120, 145, 180, 0.24);
 }
 
 /* —— Personal 三张纸：松弛、略微不规则 ——————————————————— */
@@ -268,8 +306,9 @@ button.door {
 }
 .paper-card.enterable:hover {
   transform: rotate(var(--rot, 0deg)) translateY(-3px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18),
-    0 34px 56px -28px rgba(0, 0, 0, 0.55), inset 0 0 60px rgba(120, 90, 40, 0.05);
+  box-shadow: 0 1px 2px rgba(8, 14, 26, 0.35),
+    0 34px 56px -28px rgba(8, 14, 26, 0.65),
+    inset 0 0 60px rgba(60, 90, 130, 0.06);
 }
 .paper-card.enterable:hover .paper-whisper,
 .paper-card.enterable:focus-visible .paper-whisper {
@@ -288,9 +327,9 @@ button.door {
   left: 50%;
   width: calc(100% - 2.5rem);
   height: 100%;
-  background: linear-gradient(180deg, var(--color-paper-2), #d2bf9c);
-  border: 1px solid rgba(201, 183, 147, 0.4);
-  box-shadow: 0 12px 30px -20px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, var(--color-paper-2), #bcc9d8);
+  border: 1px solid rgba(150, 170, 195, 0.42);
+  box-shadow: 0 12px 30px -20px rgba(8, 14, 26, 0.6);
   border-radius: 2px;
   transform: translateX(-50%);
   pointer-events: none;
@@ -298,7 +337,7 @@ button.door {
 }
 .things-edge.edge-2 {
   width: calc(100% - 4rem);
-  background: #d2bf9c;
+  background: #bcc9d8;
   opacity: 0.7;
 }
 .things-card:hover .things-edge {
@@ -309,10 +348,10 @@ button.door {
   align-items: center;
   justify-content: center;
   aspect-ratio: 4 / 3;
-  border: 1px dashed rgba(201, 183, 147, 0.5);
+  border: 1px dashed rgba(150, 170, 195, 0.55);
   color: var(--color-ink-faint);
   font-size: 0.78rem;
-  background: rgba(120, 90, 40, 0.04);
+  background: rgba(90, 120, 160, 0.05);
 }
 
 /* 极细向下箭头 */
@@ -334,6 +373,87 @@ button.door {
 }
 .reading-back:hover {
   color: var(--color-ember);
+}
+
+/* ============================================================
+   视觉痕迹 · Visual Traces
+   空间本来就在那里的东西：被发现，而不是被摆放。
+   深度：near（清晰） / mid（微糊、对比低） / far（几乎融进背景）。
+   全部静态；只有远处的灯可以极慢地呼吸。
+   ============================================================ */
+.trace {
+  position: absolute;
+  pointer-events: none;
+}
+.t-near {
+  opacity: 0.9;
+}
+.t-mid {
+  opacity: 0.5;
+  filter: blur(1px) saturate(0.85);
+}
+.t-far {
+  opacity: 0.28;
+  filter: blur(2px) saturate(0.75);
+}
+
+/* 图片碎片：记忆里的一块窗 / 一条街，裁切、模糊、融入 */
+.trace-img {
+  border-radius: 2px;
+  -webkit-mask-image: radial-gradient(
+    72% 72% at 50% 50%,
+    #000 42%,
+    transparent 82%
+  );
+  mask-image: radial-gradient(72% 72% at 50% 50%, #000 42%, transparent 82%);
+  filter: blur(2.5px) saturate(0.85);
+  mix-blend-mode: screen;
+}
+
+/* 远灯：小的暖色光源点（窗、路灯） */
+.trace-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 220, 175, 0.95), rgba(240, 211, 162, 0.35) 55%, transparent 75%);
+  box-shadow: 0 0 10px 2px rgba(240, 211, 162, 0.25);
+}
+@keyframes trace-breathe {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+.trace-dot.live {
+  animation: trace-breathe 15s ease-in-out infinite;
+}
+
+/* 印刷残痕：墙上一张被撕掉的东西留下的色差 */
+.trace-print {
+  border: 1px solid rgba(150, 175, 205, 0.1);
+  background: rgba(150, 175, 205, 0.045);
+  box-shadow: inset 0 0 24px rgba(10, 16, 28, 0.18);
+  border-radius: 1px;
+}
+
+/* 线稿痕迹：窗框的一角、建筑的一条线（在 traces.tsx 内以 SVG 画出） */
+.trace-line {
+  stroke: rgba(165, 185, 215, 0.4);
+  fill: none;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+/* 被擦掉的一行字：断续的书写痕迹，不承载任何可读内容 */
+.trace-faded-writing {
+  stroke: rgba(160, 180, 212, 0.5);
+  stroke-width: 1;
+  stroke-linecap: round;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -361,6 +481,9 @@ button.door {
   .paper-whisper {
     opacity: 0.85;
     transform: none;
+  }
+  .trace-dot.live {
+    animation: none;
   }
 }
 
