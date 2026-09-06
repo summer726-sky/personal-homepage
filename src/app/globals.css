@@ -43,6 +43,7 @@ body {
   min-height: 100%;
 }
 /* 痕迹允许向容器外探出（融入背景），但不产生横向滚动 */
+html,
 body {
   overflow-x: clip;
 }
@@ -511,6 +512,85 @@ button.door {
   opacity: 0;
   animation: air-fall var(--sd, 26s) linear infinite;
   animation-delay: var(--sdel, 0s);
+}
+
+/* ============================================================
+   入口纸的层叠衬纸（依据手绘示意图）
+   每张入口纸背后错位扇出 1–2 张衬纸：近层稍实、远层更淡更糊，
+   按层次（--ga 越低、--bl 越大）逐渐没入背景，并向相邻入口
+   方向伸展——这是纸与背景之间的纵深过渡，不是装饰卡片。
+   ============================================================ */
+.back-sheet {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 2px;
+  background: linear-gradient(
+    152deg,
+    rgba(208, 219, 235, var(--ga, 0.12)) 0%,
+    rgba(186, 199, 220, calc(var(--ga, 0.12) * 0.6)) 46%,
+    rgba(160, 174, 200, calc(var(--ga, 0.12) * 0.22)) 74%,
+    rgba(160, 174, 200, 0) 94%
+  );
+  border: 1px solid rgba(198, 210, 230, calc(var(--ga, 0.12) * 0.5));
+  box-shadow: 0 10px 24px -12px rgba(6, 10, 20, calc(var(--ga, 0.12) * 1.7));
+  -webkit-mask-image: linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.92) 28%,
+    rgba(0, 0, 0, 0.48) 60%,
+    transparent 94%
+  );
+  mask-image: linear-gradient(
+    120deg,
+    rgba(0, 0, 0, 0.92) 28%,
+    rgba(0, 0, 0, 0.48) 60%,
+    transparent 94%
+  );
+  filter: blur(var(--bl, 1px));
+  transform: rotate(var(--r, 0deg));
+}
+.back-sheet--in {
+  width: 100%;
+  height: 100%;
+}
+/* 远层衬纸：更淡、更糊，作为纵深最外一层 */
+.back-sheet--far {
+  border-color: transparent;
+}
+
+/* 连接纸：长而淡，漂在入口之间的空隙里，把两个入口连成一处 */
+.link-sheet {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 2px;
+  background: linear-gradient(
+    150deg,
+    rgba(192, 204, 225, var(--ga, 0.05)) 0%,
+    rgba(168, 182, 208, calc(var(--ga, 0.05) * 0.5)) 52%,
+    rgba(168, 182, 208, 0) 88%
+  );
+  -webkit-mask-image: radial-gradient(
+    82% 78% at 50% 46%,
+    rgba(0, 0, 0, 0.9) 32%,
+    rgba(0, 0, 0, 0.4) 64%,
+    transparent 88%
+  );
+  mask-image: radial-gradient(
+    82% 78% at 50% 46%,
+    rgba(0, 0, 0, 0.9) 32%,
+    rgba(0, 0, 0, 0.4) 64%,
+    transparent 88%
+  );
+  filter: blur(2.5px);
+  transform: rotate(var(--r, 0deg));
+}
+
+@media (max-width: 720px) {
+  .back-sheet,
+  .link-sheet {
+    opacity: 0.75;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -31,6 +31,58 @@ const SPECKS = Array.from({ length: 14 }, (_, i) => ({
 // 远岸的一排暖灯（很低、很远，t-far 自带模糊）
 const SHORE_LIGHTS = [6, 16, 27, 40, 55, 68, 80, 90];
 
+// 层叠衬纸：每张入口纸背后错位扇出，近层稍实、远层淡入背景，
+// 并向相邻入口方向伸展。依据手绘示意图的层叠关系。
+type Back = { l: string; t: string; r: string; a: number; bl: string; far?: boolean };
+const BACK: Record<string, Back[]> = {
+  // Things 居中偏上：向左下（Ideas 方向）扇出
+  things: [
+    { l: "-12px", t: "12px", r: "4deg", a: 0.14, bl: "1px" },
+    { l: "-25px", t: "22px", r: "8deg", a: 0.06, bl: "2.5px", far: true },
+  ],
+  // Ideas 左下：远层向左外扇出，近层向右上（Things 方向）
+  ideas: [
+    { l: "10px", t: "-12px", r: "-4deg", a: 0.13, bl: "1px" },
+    { l: "-24px", t: "14px", r: "-9deg", a: 0.055, bl: "2.5px", far: true },
+  ],
+  // Moments 右下较小：向左上（中心方向）扇出
+  moments: [
+    { l: "-11px", t: "-10px", r: "-4deg", a: 0.12, bl: "1px" },
+    { l: "-21px", t: "-18px", r: "3deg", a: 0.05, bl: "2.5px", far: true },
+  ],
+};
+
+// 连接纸：漂在入口之间的空隙里，把不同入口连成同一个空间
+const LINKS = [
+  // 下方一条：Ideas 到 Moments
+  { left: "13%", top: "74%", w: "56%", h: 118, r: "-3deg", a: 0.05 },
+  // 中部：Things 向下两个入口之间
+  { left: "40%", top: "56%", w: 196, h: 140, r: "7deg", a: 0.04 },
+];
+
+function BackSheets({ id }: { id: string }) {
+  return (
+    <>
+      {BACK[id].map((b, i) => (
+        <span
+          key={i}
+          aria-hidden
+          className={`back-sheet back-sheet--in${b.far ? " back-sheet--far" : ""}`}
+          style={
+            {
+              left: b.l,
+              top: b.t,
+              "--r": b.r,
+              "--ga": b.a,
+              "--bl": b.bl,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </>
+  );
+}
+
 export function Personal({ onThings }: { onThings: () => void }) {
   const { things, ideas, moments, fragments } = personal;
   return (
@@ -102,16 +154,36 @@ export function Personal({ onThings }: { onThings: () => void }) {
         {/* 纸间空墙上：一张被撕掉的东西留下的色差 */}
         <TracePrintGhost className="absolute right-[27%] top-[46%] h-24 w-20 rotate-2" />
 
-        {/* —— 三张错落层叠、各自慢漂浮的入口纸 —— */}
+        {/* —— 三张错落层叠、各自慢漂浮的入口纸（纸背后带扇出衬纸） —— */}
+
+        {/* 连接纸：在入口之间的空隙里，把三个入口连成同一个空间 */}
+        {LINKS.map((g, i) => (
+          <span
+            key={i}
+            aria-hidden
+            className="link-sheet"
+            style={
+              {
+                left: g.left,
+                top: g.top,
+                width: g.w,
+                height: g.h,
+                "--r": g.r,
+                "--ga": g.a,
+              } as CSSProperties
+            }
+          />
+        ))}
 
         {/* Things · 居中偏上，压在最上层 */}
         <div
           className="sheet-float relative z-20 mx-auto w-[min(100%,16rem)]"
           style={{ "--fd": "21s", "--fdelay": "-4s" } as CSSProperties}
         >
+          <BackSheets id="things" />
           <button
             type="button"
-            className="paper paper-card enterable reveal block w-full"
+            className="paper paper-card enterable reveal relative z-[1] block w-full"
             style={{ "--i": 1, "--rot": "-1.5deg" } as CSSProperties}
             onClick={onThings}
             aria-label="进入 Things"
@@ -127,8 +199,9 @@ export function Personal({ onThings }: { onThings: () => void }) {
           className="sheet-float relative z-10 ml-[6%] -mt-12 w-[min(100%,14rem)]"
           style={{ "--fd": "17s", "--fdelay": "-11s" } as CSSProperties}
         >
+          <BackSheets id="ideas" />
           <div
-            className="paper paper-card reveal w-full"
+            className="paper paper-card reveal relative z-[1] w-full"
             style={{ "--i": 2, "--rot": "2deg" } as CSSProperties}
             aria-disabled
           >
@@ -143,8 +216,9 @@ export function Personal({ onThings }: { onThings: () => void }) {
           className="sheet-float relative z-10 mr-[2%] -mt-16 ml-auto w-[min(100%,11.5rem)]"
           style={{ "--fd": "24s", "--fdelay": "-17s" } as CSSProperties}
         >
+          <BackSheets id="moments" />
           <div
-            className="paper paper-card reveal w-full"
+            className="paper paper-card reveal relative z-[1] w-full"
             style={{
               "--i": 3,
               "--rot": "-2.6deg",
