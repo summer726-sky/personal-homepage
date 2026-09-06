@@ -14,6 +14,15 @@ const WINDOW_IMG =
   ) +
   "&image_size=landscape_4_3";
 
+/* 暖的室内照片（手持小钟、窗边暖光）：用作 Personal 右上角虚化元素，
+   在蓝调夜色里像一扇亮着暖灯的窗。 */
+export const CLOCK_WARM_IMG =
+  "https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=" +
+  encodeURIComponent(
+    "intimate close-up of hands holding a small vintage bedside clock, dark casing with thin gold rim and warm cream clock face, soft out of focus window light glowing behind, blue denim jeans, cozy quiet evening indoor mood, shallow depth of field, gentle warm amber cream tones, film grain, soft focus edges"
+  ) +
+  "&image_size=square_hd";
+
 /* 图片碎片：一块模糊的窗/夜景，裁切融入背景，像记忆残片 */
 export function TraceImage({
   className = "",

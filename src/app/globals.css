@@ -64,6 +64,8 @@ body::before {
     radial-gradient(62% 50% at 78% 6%, rgba(240, 211, 162, 0.11), transparent 62%),
     /* 左下深处的紫色反射：湿地面 / 玻璃的回弹 */
     radial-gradient(70% 42% at 50% 108%, rgba(141, 134, 195, 0.09), transparent 70%),
+    /* 极低处的地平线：紫粉最后一缕暮光（几乎不可察） */
+    radial-gradient(60% 22% at 52% 100%, rgba(176, 144, 198, 0.06), transparent 78%),
     /* 左侧冷调环境填充 */
     radial-gradient(85% 70% at 12% 32%, rgba(120, 150, 190, 0.08), transparent 66%),
     /* 中央雾 */
@@ -456,6 +458,61 @@ button.door {
   stroke-linecap: round;
 }
 
+/* ============================================================
+   Personal 入口的「漂浮」与「空气」
+   注意：只作用于包裹层，不触碰 .paper-card 自身的
+   reveal / hover / whisper 动画——漂浮在容器，纸仍然是那张纸。
+   ============================================================ */
+@keyframes sheet-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+.sheet-float {
+  position: relative;
+  animation: sheet-float var(--fd, 19s) ease-in-out infinite;
+  animation-delay: var(--fdelay, 0s);
+}
+
+/* 极疏的微尘 / 落雪：落得很慢，大部分时间几乎不可察 */
+.air-layer {
+  position: absolute;
+  inset: -3rem -4rem;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+@keyframes air-fall {
+  0% {
+    transform: translate3d(0, -6%, 0);
+    opacity: 0;
+  }
+  16% {
+    opacity: var(--o, 0.2);
+  }
+  84% {
+    opacity: var(--o, 0.2);
+  }
+  100% {
+    transform: translate3d(10px, 114%, 0);
+    opacity: 0;
+  }
+}
+.air-speck {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  background: #d6e0ee;
+  filter: blur(0.4px);
+  opacity: 0;
+  animation: air-fall var(--sd, 26s) linear infinite;
+  animation-delay: var(--sdel, 0s);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .space-root,
   .door,
@@ -484,6 +541,13 @@ button.door {
   }
   .trace-dot.live {
     animation: none;
+  }
+  .sheet-float,
+  .air-speck {
+    animation: none !important;
+  }
+  .air-speck {
+    display: none;
   }
 }
 
