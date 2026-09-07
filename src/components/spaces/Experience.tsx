@@ -50,7 +50,9 @@ export function Experience() {
     <div key={space} className={`space-root ${leaving ? "is-leaving" : ""}`}>
       {space === "entrance" && <Entrance onContinue={() => go("fork")} />}
       {space === "fork" && <Fork onPersonal={() => go("personal")} />}
-      {space === "personal" && <Personal onThings={() => go("things")} />}
+      {space === "personal" && (
+        <Personal onThings={() => go("things")} onBack={() => go("fork")} />
+      )}
       {space === "things" && (
         <Things onOpen={() => go("reading")} onBack={() => go("personal")} />
       )}

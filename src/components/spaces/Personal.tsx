@@ -83,13 +83,31 @@ function BackSheets({ id }: { id: string }) {
   );
 }
 
-export function Personal({ onThings }: { onThings: () => void }) {
+export function Personal({
+  onThings,
+  onBack,
+}: {
+  onThings: () => void;
+  onBack: () => void;
+}) {
   const { things, ideas, moments, fragments } = personal;
   return (
     <div className="mx-auto w-full max-w-3xl">
-      <p
-        className="reveal mb-10 font-serif text-base text-ember-soft"
+      {/* 返回上一级：小巧的细线箭头，hover 时轻微左移并亮起 */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="space-back reveal"
         style={{ "--i": 0 } as CSSProperties}
+        aria-label="返回上一级"
+      >
+        <span className="space-back__arrow" aria-hidden>←</span>
+        <span>返回</span>
+      </button>
+
+      <p
+        className="reveal mb-10 mt-4 font-serif text-base text-ember-soft"
+        style={{ "--i": 1 } as CSSProperties}
       >
         {personal.ambient}
       </p>
@@ -184,7 +202,7 @@ export function Personal({ onThings }: { onThings: () => void }) {
           <button
             type="button"
             className="paper paper-card enterable reveal relative z-[1] block w-full"
-            style={{ "--i": 1, "--rot": "-1.5deg" } as CSSProperties}
+            style={{ "--i": 2, "--rot": "-1.5deg" } as CSSProperties}
             onClick={onThings}
             aria-label="进入 Things"
           >
@@ -202,7 +220,7 @@ export function Personal({ onThings }: { onThings: () => void }) {
           <BackSheets id="ideas" />
           <div
             className="paper paper-card reveal relative z-[1] w-full"
-            style={{ "--i": 2, "--rot": "2deg" } as CSSProperties}
+            style={{ "--i": 3, "--rot": "2deg" } as CSSProperties}
             aria-disabled
           >
             <p className="paper-title">{ideas.label}</p>
@@ -220,7 +238,7 @@ export function Personal({ onThings }: { onThings: () => void }) {
           <div
             className="paper paper-card reveal relative z-[1] w-full"
             style={{
-              "--i": 3,
+              "--i": 4,
               "--rot": "-2.6deg",
               opacity: "0.94",
             } as CSSProperties}

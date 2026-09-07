@@ -7,10 +7,9 @@
 // 视觉与 Personal 蓝调夜色一脉相承：墙是夜色，地板是镜面，卡片是冷白纸。
 //
 // 切换氛围：端卡片不横穿舞台——在原位缓缓隐退（外漂 + 模糊 + 淡出），
-// 再从另一端缓缓显现（内漂 + 清晰 + 淡入）。类别词同样先隐退后显现，
-// 显现动效复用全局 reveal（blur→clear + 轻上移），不另加别的效果。
+// 再从另一端缓缓显现（内漂 + 清晰 + 淡入）。类别词随切换直接更替，不加动效。
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useState, type CSSProperties } from "react";
 import { thingsCards } from "@/data/content";
 
 const CARDS = thingsCards;
@@ -55,9 +54,6 @@ function cardInnerTransform(offset: number): string {
   return `rotateY(${-sign * (abs === 1 ? 26 : 40)}deg)`;
 }
 
-// 类别词隐退时长：与 .cat-label.is-leaving 的动画时长保持一致
-const LABEL_EXIT_MS = 460;
-
 export function Things({
   onOpen,
   onBack,
@@ -66,18 +62,6 @@ export function Things({
   onBack: () => void;
 }) {
   const [active, setActive] = useState(0);
-  // 类别词状态：leaving 期间播隐退动画，结束后换文字、以 reveal 显现
-  const [label, setLabel] = useState({
-    text: CARDS[0].categoryLabel,
-    leaving: false,
-  });
-  const labelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (labelTimer.current) clearTimeout(labelTimer.current);
-    };
-  }, []);
 
   const handleCard = useCallback(
     (i: number) => {
@@ -86,15 +70,6 @@ export function Things({
         onOpen();
         return;
       }
-      const nextLabel = CARDS[i].categoryLabel;
-      setLabel((s) => {
-        if (s.text === nextLabel) return { text: s.text, leaving: false };
-        if (labelTimer.current) clearTimeout(labelTimer.current);
-        labelTimer.current = setTimeout(() => {
-          setLabel({ text: nextLabel, leaving: false });
-        }, LABEL_EXIT_MS);
-        return { text: s.text, leaving: true };
-      });
       setActive(i);
     },
     [active, onOpen]
@@ -113,12 +88,9 @@ export function Things({
         <p className="font-serif text-sm text-ember-soft">Things</p>
       </div>
 
-      {/* 当前分类名：切换时先隐退，再以 reveal 显现（key=文字，换词即重播入场） */}
-      <p
-        key={label.text}
-        className={`cat-label font-serif text-2xl text-ember${label.leaving ? " is-leaving" : ""}`}
-      >
-        {label.text}
+      {/* 当前分类名：随切换直接更替，不加动效 */}
+      <p className="font-serif text-2xl text-ember">
+        {CARDS[active].categoryLabel}
       </p>
 
       {/* 3D 轮播舞台 */}

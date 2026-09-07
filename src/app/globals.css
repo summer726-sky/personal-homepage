@@ -691,6 +691,31 @@ button.door {
   color: var(--color-ember);
 }
 
+/* 空间级返回按钮（Personal 等）：小巧优雅的细线箭头 + 文字。
+   hover 时整体轻微左移并亮起，像被轻轻拨动了一下。 */
+.space-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-ember-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.space-back__arrow {
+  font-size: 0.9rem;
+  transform: translateY(-0.5px);
+  transition: transform 0.3s ease;
+}
+.space-back:hover {
+  color: var(--color-ember);
+  transform: translateX(-2px);
+}
+.space-back:hover .space-back__arrow {
+  transform: translate(-1px, -0.5px);
+}
+
 /* —— 3D 轮播舞台：透视容器 —— */
 .carousel-stage {
   position: relative;
@@ -724,22 +749,6 @@ button.door {
     opacity 0.75s ease,
     filter 0.75s ease;
   will-change: transform, opacity, filter;
-}
-
-/* 类别词：显现复用全局 reveal（blur→clear + 轻上移）；
-   切走时先隐退——轻上浮 + 模糊 + 淡出，与卡片隐退同一气质 */
-.cat-label {
-  animation: reveal 0.85s cubic-bezier(0.2, 0.6, 0.2, 1) both;
-}
-.cat-label.is-leaving {
-  animation: cat-leave 0.45s ease both;
-}
-@keyframes cat-leave {
-  to {
-    opacity: 0;
-    filter: blur(6px);
-    transform: translateY(-8px);
-  }
 }
 
 /* —— 卡片本体：冷白卡纸，无图案 ——
@@ -821,30 +830,52 @@ button.door {
   line-height: 1.55;
 }
 
-/* —— 镜面倒影：卡片正下方一条渐隐浅带 —— */
+/* —— 镜面倒影：卡片正下方的渐隐镜像 ——
+   物理规律：与卡片同宽、上下对齐、顶边圆角与卡片底边圆角一致；
+   整体通过 mask-image 向下渐隐，底部完全融入背景，无可见分界线。
+   大小/长度：倒影在 slot 内，随 slot 的 scale 同步缩放，侧卡倒影同比例缩小。
+   亮度：基础透明度较低，仅活跃卡片倒影更亮，侧卡随 slot opacity 自然变暗。 */
 .vynora-card-reflect {
   position: absolute;
-  top: 100%;
+  /* 微向上重叠 2px，封住卡片底部圆角与倒影顶部圆角之间的细缝 */
+  top: calc(100% - 2px);
   left: 0;
   right: 0;
-  height: 60%;
-  /* 与卡片边缘同色的渐隐带：模拟镜面回弹的卡形 */
+  height: 55%;
+  /* 四角均与卡片一致（6px），顶部对齐卡片底边圆角；底部被 mask 隐去 */
+  border-radius: 6px;
   background: linear-gradient(
     180deg,
-    rgba(232, 237, 243, 0.22) 0%,
-    rgba(217, 225, 234, 0.12) 30%,
-    rgba(141, 160, 195, 0.04) 70%,
+    rgba(232, 237, 243, 0.16) 0%,
+    rgba(217, 225, 234, 0.07) 35%,
+    rgba(141, 160, 195, 0.02) 70%,
     transparent 100%
   );
-  border-radius: 0 0 6px 6px;
+  /* 整层向下渐隐：上 25% 实，随后平滑过渡到底部全透明——
+     无论圆角还是直边，底部都不会留下可见轮廓 */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 22%,
+    rgba(0, 0, 0, 0.55) 58%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 22%,
+    rgba(0, 0, 0, 0.55) 58%,
+    transparent 100%
+  );
   pointer-events: none;
   transform: translateZ(-1px);
-  /* 与卡片同步的过渡（仅活跃卡片的倒影更亮） */
-  opacity: 0.7;
+  /* 基础透明度低：侧卡倒影随 slot opacity 进一步变暗，
+     只有中央卡片的倒影被提亮，安静且有层次 */
+  opacity: 0.5;
   transition: opacity 0.55s ease;
 }
 .carousel-card-slot[data-active="true"] .vynora-card-reflect {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 /* —— 移动端：缩小卡片、收紧横向间距、限制可见张数 —— */
@@ -876,9 +907,9 @@ button.door {
   .vynora-card-whisper {
     font-size: 0.72rem;
   }
-  /* 移动端倒影更短 */
+  /* 移动端倒影更短，与缩小后的卡片比例协调 */
   .vynora-card-reflect {
-    height: 40%;
+    height: 42%;
   }
 }
 
