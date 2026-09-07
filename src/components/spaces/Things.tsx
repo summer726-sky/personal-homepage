@@ -1,12 +1,16 @@
 "use client";
 
-// Things 内容空间 V2：3D 透视轮播。
+// Things 内容空间 V2：3D 透视轮播（安静版）。
 // 复刻 Vynora 的卡片形态、3D 轮播动效、点击切换交互、镜面反射与暗色光泽背景。
 // 卡片本身无图案图样，是内容载体（真实内容随后由用户填入）。
 // 中央卡片点击进入更深一层；两侧卡片点击移到中央。底部播放栏不实现。
 // 视觉与 Personal 蓝调夜色一脉相承：墙是夜色，地板是镜面，卡片是冷白纸。
+//
+// 切换氛围：端卡片不横穿舞台——在原位缓缓隐退（外漂 + 模糊 + 淡出），
+// 再从另一端缓缓显现（内漂 + 清晰 + 淡入）。类别词同样先隐退后显现，
+// 显现动效复用全局 reveal（blur→clear + 轻上移），不另加别的效果。
 
-import { useCallback, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { thingsCards } from "@/data/content";
 
 const CARDS = thingsCards;
@@ -18,23 +22,24 @@ function relOffset(i: number, active: number): number {
   return (((i - active + N + HALF) % N) - HALF);
 }
 
-// 依据相对偏移计算 slot 的 transform / opacity / filter / z-index。
-// slot 保持矩形（无 rotateY / translateZ）——这是 click hit area，
-// 必须规则矩形以保证侧卡片点击可靠命中。
-// 3D 倾斜感由 .vynora-card 子元素的 rotateY（视觉层）+ 透视容器共同营造。
-function cardStyle(offset: number): CSSProperties {
+// slot 样式（click hit area，保持规则矩形，不用 rotateY / translateZ）。
+// 间距走 --slide-gap 变量（CSS 中按视口调整），移动端自动收紧。
+// 隐藏卡（|offset| > 2）不再甩到远处，只停在可见边缘外一点：
+// 切换时它从边缘原地隐退，或从边缘原地显现，营造安静的呼吸感。
+function slotStyle(offset: number): CSSProperties {
   const abs = Math.abs(offset);
-  // 仅 ±2 内可见；更远的卡片隐藏，但仍占位参与循环
   if (abs > 2) {
+    const sign = offset > 0 ? "1" : "-1";
     return {
+      transform: `translateX(calc(${sign} * var(--slide-gap, 9.5rem) * 1.3)) scale(0.85)`,
       opacity: 0,
+      filter: "blur(5px) brightness(0.6)",
       pointerEvents: "none" as const,
-      transform: "translateX(-99rem)",
       zIndex: 0,
     };
   }
   return {
-    transform: `translateX(${offset * 8.5}rem) scale(${1 - abs * 0.08})`,
+    transform: `translateX(calc(${offset} * var(--slide-gap, 9.5rem))) scale(${1 - abs * 0.08})`,
     opacity: 1 - abs * 0.22,
     filter: abs === 0 ? "none" : `brightness(${1 - abs * 0.22}) blur(${abs * 0.5}px)`,
     zIndex: 10 - abs,
@@ -42,13 +47,16 @@ function cardStyle(offset: number): CSSProperties {
 }
 
 // 卡片本体的视觉 transform：rotateY 朝中心倾斜，营造 3D 透视感。
-// 不影响 slot 的 click hit area（这是子元素，不参与父 slot 的 hit-test）。
+// 只作用于视觉层（.vynora-card），不影响 slot 的 click hit area。
 function cardInnerTransform(offset: number): string {
   const abs = Math.abs(offset);
   if (abs === 0) return "none";
   const sign = offset > 0 ? 1 : -1;
-  return `rotateY(${-sign * (abs === 1 ? 28 : 42)}deg)`;
+  return `rotateY(${-sign * (abs === 1 ? 26 : 40)}deg)`;
 }
+
+// 类别词隐退时长：与 .cat-label.is-leaving 的动画时长保持一致
+const LABEL_EXIT_MS = 460;
 
 export function Things({
   onOpen,
@@ -58,12 +66,36 @@ export function Things({
   onBack: () => void;
 }) {
   const [active, setActive] = useState(0);
+  // 类别词状态：leaving 期间播隐退动画，结束后换文字、以 reveal 显现
+  const [label, setLabel] = useState({
+    text: CARDS[0].categoryLabel,
+    leaving: false,
+  });
+  const labelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (labelTimer.current) clearTimeout(labelTimer.current);
+    };
+  }, []);
 
   const handleCard = useCallback(
     (i: number) => {
       const offset = relOffset(i, active);
-      if (offset === 0) onOpen();
-      else setActive(i);
+      if (offset === 0) {
+        onOpen();
+        return;
+      }
+      const nextLabel = CARDS[i].categoryLabel;
+      setLabel((s) => {
+        if (s.text === nextLabel) return { text: s.text, leaving: false };
+        if (labelTimer.current) clearTimeout(labelTimer.current);
+        labelTimer.current = setTimeout(() => {
+          setLabel({ text: nextLabel, leaving: false });
+        }, LABEL_EXIT_MS);
+        return { text: s.text, leaving: true };
+      });
+      setActive(i);
     },
     [active, onOpen]
   );
@@ -81,12 +113,12 @@ export function Things({
         <p className="font-serif text-sm text-ember-soft">Things</p>
       </div>
 
-      {/* 当前分类名（随轮播切换） */}
+      {/* 当前分类名：切换时先隐退，再以 reveal 显现（key=文字，换词即重播入场） */}
       <p
-        className="reveal font-serif text-2xl text-ember"
-        style={{ "--i": 1 } as CSSProperties}
+        key={label.text}
+        className={`cat-label font-serif text-2xl text-ember${label.leaving ? " is-leaving" : ""}`}
       >
-        {CARDS[active].categoryLabel}
+        {label.text}
       </p>
 
       {/* 3D 轮播舞台 */}
@@ -101,7 +133,7 @@ export function Things({
               <div
                 key={card.category}
                 className="carousel-card-slot"
-                style={cardStyle(offset)}
+                style={slotStyle(offset)}
                 data-active={offset === 0}
                 role="button"
                 tabIndex={0}

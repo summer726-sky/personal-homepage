@@ -695,7 +695,9 @@ button.door {
 .carousel-stage {
   position: relative;
   width: 100%;
-  height: 22rem;
+  height: 26rem;
+  /* 卡片间距：JS 里的 translateX 引用此变量，响应式只改这里 */
+  --slide-gap: 9.5rem;
   perspective: 1500px;
   perspective-origin: 50% 38%;
 }
@@ -705,31 +707,51 @@ button.door {
   transform-style: preserve-3d;
 }
 
-/* 卡片槽位：绝对定位居中，由 inline transform 控制位移与旋转 */
+/* 卡片槽位：绝对定位居中，由 inline transform 控制位移。
+   过渡整体放慢（缓出曲线），切换像一次缓慢的呼吸而不是滑动。
+   隐藏卡停在边缘外 1.3 倍间距处——隐退/显现都发生在原地，
+   没有任何卡片横穿舞台。 */
 .carousel-card-slot {
   position: absolute;
-  top: 1rem;
+  top: 1.5rem;
   left: 50%;
-  width: 13rem;
-  height: 17rem;
-  margin-left: -6.5rem;
+  width: 15rem;
+  height: 21rem;
+  margin-left: -7.5rem;
   transform-style: preserve-3d;
   transition:
-    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
-    opacity 0.55s ease,
-    filter 0.55s ease;
+    transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.75s ease,
+    filter 0.75s ease;
   will-change: transform, opacity, filter;
 }
 
-/* —— 卡片本体：冷白卡纸，无图案 —— */
+/* 类别词：显现复用全局 reveal（blur→clear + 轻上移）；
+   切走时先隐退——轻上浮 + 模糊 + 淡出，与卡片隐退同一气质 */
+.cat-label {
+  animation: reveal 0.85s cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+.cat-label.is-leaving {
+  animation: cat-leave 0.45s ease both;
+}
+@keyframes cat-leave {
+  to {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(-8px);
+  }
+}
+
+/* —— 卡片本体：冷白卡纸，无图案 ——
+   尺寸放大以容纳阅读内容与照片：标题区之上预留媒体空间（flex 占位），
+   底部 whisper 吸底。 */
 .vynora-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   width: 100%;
   height: 100%;
-  padding: 1.4rem 1.25rem 1.5rem;
+  padding: 1.6rem 1.4rem 1.7rem;
   border: 0;
   border-radius: 6px;
   background: linear-gradient(168deg, var(--color-paper) 0%, var(--color-paper-2) 100%);
@@ -778,25 +800,25 @@ button.door {
 }
 .vynora-card-title {
   display: block;
-  margin-top: 0.6rem;
-  font-size: 1.4rem;
+  margin-top: 0.65rem;
+  font-size: 1.5rem;
   font-weight: 500;
   color: var(--color-ink);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 .vynora-card-subtitle {
   display: block;
-  margin-top: 0.35rem;
-  font-size: 0.78rem;
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
   color: var(--color-ink-soft);
 }
 .vynora-card-whisper {
   display: block;
   margin-top: auto;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-style: italic;
   color: var(--color-ink-faint);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* —— 镜面倒影：卡片正下方一条渐隐浅带 —— */
@@ -831,26 +853,28 @@ button.door {
     padding: 1rem 0.5rem 3rem;
   }
   .carousel-stage {
-    height: 18rem;
+    height: 22rem;
+    --slide-gap: 7rem;
     perspective: 1100px;
   }
   .carousel-card-slot {
-    width: 10rem;
-    height: 14rem;
-    margin-left: -5rem;
+    width: 12rem;
+    height: 17.5rem;
+    margin-left: -6rem;
+    top: 1rem;
   }
   .vynora-card {
-    padding: 1rem 0.9rem 1.1rem;
+    padding: 1.1rem 1rem 1.2rem;
   }
   .vynora-card-title {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   .vynora-card-category {
     font-size: 0.62rem;
   }
   .vynora-card-subtitle,
   .vynora-card-whisper {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
   }
   /* 移动端倒影更短 */
   .vynora-card-reflect {
@@ -861,12 +885,13 @@ button.door {
 /* —— 极小屏：进一步收紧，仅保证中央 + 紧邻两张可见 —— */
 @media (max-width: 420px) {
   .carousel-stage {
-    height: 16rem;
+    height: 19rem;
+    --slide-gap: 6rem;
     perspective: 900px;
   }
   .carousel-card-slot {
-    width: 8.5rem;
-    height: 12rem;
-    margin-left: -4.25rem;
+    width: 10rem;
+    height: 15rem;
+    margin-left: -5rem;
   }
 }
