@@ -639,3 +639,234 @@ button.door {
     min-height: 16rem;
   }
 }
+
+/* ============================================================
+   Things 内容空间 V2 · 3D 透视轮播 / 镜面反射
+   复刻 Vynora 的卡片形态、轮播动效、点击切换与镜面反射。
+   视觉关系：墙是夜色（沿用 body::before 蓝调），地板是镜面
+   （卡片下方渐隐倒影），卡片是冷白卡纸（与 Personal 入口纸
+   同材质）。从「墙上的纸」过渡到「镜面上的卡」，是进入更深
+   一层的空间叙事。
+   ============================================================ */
+
+/* —— Things 空间根：保留夜色，铺一层镜面地板光泽 —— */
+.things-stage {
+  position: relative;
+  padding: 1.5rem 1rem 4rem;
+}
+/* 镜面地板：底部一条冷光渐隐，暗示卡片漂在反光表面上 */
+.things-stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38%;
+  background:
+    /* 卡片下方的冷光带：镜面回弹的天光 */
+    linear-gradient(
+      180deg,
+      rgba(190, 205, 225, 0) 0%,
+      rgba(190, 205, 225, 0.05) 30%,
+      rgba(141, 160, 195, 0.07) 70%,
+      rgba(120, 140, 175, 0.02) 100%
+    ),
+    /* 地平线一抹极淡暖光：远处一扇窗的回弹 */
+    radial-gradient(
+      60% 30% at 50% 100%,
+      rgba(240, 211, 162, 0.05),
+      transparent 70%
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 顶栏返回按钮 */
+.things-back {
+  color: var(--color-ember-faint);
+  font-size: 0.82rem;
+  transition: color 0.3s ease;
+}
+.things-back:hover {
+  color: var(--color-ember);
+}
+
+/* —— 3D 轮播舞台：透视容器 —— */
+.carousel-stage {
+  position: relative;
+  width: 100%;
+  height: 22rem;
+  perspective: 1500px;
+  perspective-origin: 50% 38%;
+}
+.carousel-track {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* 卡片槽位：绝对定位居中，由 inline transform 控制位移与旋转 */
+.carousel-card-slot {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  width: 13rem;
+  height: 17rem;
+  margin-left: -6.5rem;
+  transform-style: preserve-3d;
+  transition:
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.55s ease,
+    filter 0.55s ease;
+  will-change: transform, opacity, filter;
+}
+
+/* —— 卡片本体：冷白卡纸，无图案 —— */
+.vynora-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  padding: 1.4rem 1.25rem 1.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: linear-gradient(168deg, var(--color-paper) 0%, var(--color-paper-2) 100%);
+  box-shadow:
+    /* 卡片边缘的冷光（来自右上暖光的反射） */
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    /* 卡片本身的落地阴影 */
+    0 2px 4px rgba(8, 14, 26, 0.18),
+    0 18px 40px -12px rgba(8, 14, 26, 0.55),
+    /* 远处一抹紫色反射 */
+    0 30px 60px -30px rgba(141, 134, 195, 0.25);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 0.4s ease;
+  /* --rot-y 由 inline style 提供（rotateY 视觉倾斜）；
+     slot 仍是矩形 hit area，倾斜只在视觉层 */
+  transform: var(--rot-y, none);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+}
+/* hover：在原 rotateY 基础上轻微上浮 */
+.vynora-card:hover {
+  transform: var(--rot-y, none) translateY(-6px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 8px rgba(8, 14, 26, 0.22),
+    0 28px 50px -14px rgba(8, 14, 26, 0.6),
+    0 40px 70px -28px rgba(141, 134, 195, 0.32);
+}
+.carousel-card-slot[data-active="true"] .vynora-card {
+  cursor: pointer;
+}
+.carousel-card-slot[data-active="false"] .vynora-card {
+  cursor: pointer; /* 侧卡片也可点击，将其移到中央 */
+}
+
+/* 卡片内容：分类标 / 标题 / 副标题 / 氛围碎片 */
+.vynora-card-category {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+.vynora-card-title {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+.vynora-card-subtitle {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--color-ink-soft);
+}
+.vynora-card-whisper {
+  display: block;
+  margin-top: auto;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-ink-faint);
+  line-height: 1.5;
+}
+
+/* —— 镜面倒影：卡片正下方一条渐隐浅带 —— */
+.vynora-card-reflect {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 60%;
+  /* 与卡片边缘同色的渐隐带：模拟镜面回弹的卡形 */
+  background: linear-gradient(
+    180deg,
+    rgba(232, 237, 243, 0.22) 0%,
+    rgba(217, 225, 234, 0.12) 30%,
+    rgba(141, 160, 195, 0.04) 70%,
+    transparent 100%
+  );
+  border-radius: 0 0 6px 6px;
+  pointer-events: none;
+  transform: translateZ(-1px);
+  /* 与卡片同步的过渡（仅活跃卡片的倒影更亮） */
+  opacity: 0.7;
+  transition: opacity 0.55s ease;
+}
+.carousel-card-slot[data-active="true"] .vynora-card-reflect {
+  opacity: 1;
+}
+
+/* —— 移动端：缩小卡片、收紧横向间距、限制可见张数 —— */
+@media (max-width: 720px) {
+  .things-stage {
+    padding: 1rem 0.5rem 3rem;
+  }
+  .carousel-stage {
+    height: 18rem;
+    perspective: 1100px;
+  }
+  .carousel-card-slot {
+    width: 10rem;
+    height: 14rem;
+    margin-left: -5rem;
+  }
+  .vynora-card {
+    padding: 1rem 0.9rem 1.1rem;
+  }
+  .vynora-card-title {
+    font-size: 1.1rem;
+  }
+  .vynora-card-category {
+    font-size: 0.62rem;
+  }
+  .vynora-card-subtitle,
+  .vynora-card-whisper {
+    font-size: 0.7rem;
+  }
+  /* 移动端倒影更短 */
+  .vynora-card-reflect {
+    height: 40%;
+  }
+}
+
+/* —— 极小屏：进一步收紧，仅保证中央 + 紧邻两张可见 —— */
+@media (max-width: 420px) {
+  .carousel-stage {
+    height: 16rem;
+    perspective: 900px;
+  }
+  .carousel-card-slot {
+    width: 8.5rem;
+    height: 12rem;
+    margin-left: -4.25rem;
+  }
+}

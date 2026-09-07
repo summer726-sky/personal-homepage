@@ -61,11 +61,72 @@ export const personal = {
   ],
 };
 
-// Things 的一个真实内容样本（Music / 一首歌）。
-// 本阶段只实现这一首；不实现完整 Music library。
+// Things 的内容空间 V2：分类以「该分类下的一张具体卡片」出现。
+// 卡片本身是载体（无图案图样），真实内容随后由用户填入。
+// 本阶段提供分类骨架与占位标题，不编造个人事实。
+export type ThingsCard = {
+  category: string; // 分类 key（music / photography / travel …）
+  categoryLabel: string; // 分类显示名
+  title: string; // 这张卡的具体标题（占位）
+  subtitle: string; // 副标题 / 来源 / 时间（占位）
+  whisper: string; // 一句氛围碎片（情绪，非事实）
+};
+
+export const thingsCards: ThingsCard[] = [
+  {
+    category: "music",
+    categoryLabel: "Music",
+    title: "（一首歌）",
+    subtitle: "（艺人 · 年份）",
+    whisper: "那段时间，它总是在傍晚出现。",
+  },
+  {
+    category: "photography",
+    categoryLabel: "Photography",
+    title: "（一张照片）",
+    subtitle: "（地点 · 季节）",
+    whisper: "按下快门的时候，光正好落在那。",
+  },
+  {
+    category: "travel",
+    categoryLabel: "Travel",
+    title: "（一段路程）",
+    subtitle: "（起点 → 终点）",
+    whisper: "那天的风是冷的。",
+  },
+  {
+    category: "reading",
+    categoryLabel: "Reading",
+    title: "（一本书）",
+    subtitle: "（作者）",
+    whisper: "读到那一页停住了。",
+  },
+  {
+    category: "film",
+    categoryLabel: "Film",
+    title: "（一部电影）",
+    subtitle: "（导演 · 年份）",
+    whisper: "结尾那个长镜头。",
+  },
+  {
+    category: "object",
+    categoryLabel: "Object",
+    title: "（一件物件）",
+    subtitle: "（来源）",
+    whisper: "一直没舍得扔。",
+  },
+  {
+    category: "food",
+    categoryLabel: "Food",
+    title: "（一种味道）",
+    subtitle: "（厨房 · 季节）",
+    whisper: "那碗汤端上来，热气把脸糊住了。",
+  },
+];
+
+// 兼容：旧的单一歌曲样本（保留导入，reading 状态仍用）
 export const thingsCard = {
   attitude: "我的音乐态度",
-  // ↓ 占位：请替换为你真实的一首歌
   songTitle: "（在这里填入一首真实的歌）",
   artist: "（艺人）",
   date: "2026",
