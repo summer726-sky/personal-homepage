@@ -1,19 +1,17 @@
 "use client";
 
-// Ideas 内容空间：深夜手稿。
-// 进入 Ideas 就是进入阅读本身——这里没有下一级。
-// 每一段想法是桌上的一页手稿：冷白纸、极轻的旋转、横向错落；
-// 纸与纸之间漂着极淡的时间小注，把段落分开，却让它们
-// 顺着同一条时间流。错落来自内容本身：字数不等，纸的长宽随之不同。
-// 环境比 Personal 更深一层、更安静：更疏的微尘、更小更远的暖窗、
-// 只在纸流尽头隐约亮着的几盏远灯。
-// 原则：空间回应，不让空间表演。hover 只让纸轻轻抬起一点。
+// Ideas 内容空间：深灰黑卡时间线。
+// 卡片形态参考节点工作流工具面板：深灰黑圆角 + 1px 极细暗边 + 轻微内凹阴影。
+// 4 种蓝灰色域内变体，从上到下渐深——新的稍亮、旧的更深。
+// 时间线：最新在最上方，滚动阅读。
+// 每张卡约 100-350 字，错落横向偏移 + 宽窄不一。
+// 环境比 Personal 更深一层、更安静。
 
 import { Fragment, type CSSProperties } from "react";
 import { ideasSpace } from "@/data/content";
 import { TraceImage, TraceLightDot, CLOCK_WARM_IMG } from "./traces";
 
-// 微尘：比 Personal 更疏、更慢——更深一层的房间，更安静
+// 微尘：比 Personal 更疏、更慢
 const SPECKS = Array.from({ length: 9 }, (_, i) => ({
   left: (7 + i * 10.4 + (i % 3) * 3.1) % 92,
   size: 1 + (i % 2) * 0.5,
@@ -22,25 +20,29 @@ const SPECKS = Array.from({ length: 9 }, (_, i) => ({
   o: 0.1 + (i % 3) * 0.04,
 }));
 
-// 远岸灯：比 Personal 更少、更低，只在纸流尽头隐约亮着
+// 远岸灯：只在纸流尽头隐约亮着
 const SHORE = [12, 34, 63, 84];
 
-// 手稿的错落：横向偏移 / 宽度 / 极轻旋转，交替呼吸。
-// 字数不等的段落配上宽窄不一的纸，错落从内容里长出来。
+// 卡片的错落：横向偏移 / 宽度。已移除旋转（深灰黑卡不需要）。
 const LAYOUT = [
-  { ml: "0%", w: "30rem", rot: "-0.7deg" },
-  { ml: "15%", w: "26rem", rot: "1deg" },
-  { ml: "3%", w: "31rem", rot: "-0.4deg" },
-  { ml: "21%", w: "25.5rem", rot: "0.8deg" },
-  { ml: "6%", w: "29rem", rot: "-1deg" },
+  { ml: "0%", w: "30rem" },
+  { ml: "15%", w: "26rem" },
+  { ml: "3%", w: "31rem" },
+  { ml: "21%", w: "25.5rem" },
+  { ml: "6%", w: "29rem" },
 ];
 
 export function Ideas({ onBack }: { onBack: () => void }) {
   const { ambient, entries, endNote } = ideasSpace;
 
+  // content.ts 中 entries 已按新→旧排列（十月初 → 八月末），
+  // 直接渲染即可，时间线最新在最上方。
+  // tone 从上到下递增：上亮下暗。
+  const list = entries;
+
   return (
     <div className="ideas-stage relative mx-auto w-full max-w-3xl">
-      {/* 顶栏：返回 + 空间名（与 Things 同构） */}
+      {/* 顶栏：返回 + 空间名 */}
       <div
         className="reveal flex w-full items-center justify-between"
         style={{ "--i": 0 } as CSSProperties}
@@ -61,7 +63,7 @@ export function Ideas({ onBack }: { onBack: () => void }) {
         {ambient}
       </p>
 
-      {/* 顶部一束更弱的冷光，让手稿流起始于微亮的桌面 */}
+      {/* 顶部一束更弱的冷光 */}
       <span
         aria-hidden
         className="t-far pointer-events-none absolute inset-x-2 -top-8 h-64"
@@ -71,13 +73,13 @@ export function Ideas({ onBack }: { onBack: () => void }) {
         }}
       />
 
-      {/* 右上角：同一扇暖窗，更小更远——还是那栋房子，更深的一个房间 */}
+      {/* 右上角：同一扇暖窗，更小更远 */}
       <TraceImage
         src={CLOCK_WARM_IMG}
         className="absolute -top-14 right-[-2%] w-28 sm:w-36"
       />
 
-      {/* 手稿流 */}
+      {/* 卡片时间线 */}
       <div className="ideas-flow relative mt-6">
         {/* 空气：极疏的微尘 */}
         <span className="air-layer" aria-hidden>
@@ -99,11 +101,12 @@ export function Ideas({ onBack }: { onBack: () => void }) {
           ))}
         </span>
 
-        {entries.map((idea, i) => {
+        {list.map((idea, i) => {
           const l = LAYOUT[i % LAYOUT.length];
+          const tone = i % 4; // 4 种深灰黑变体，上亮下暗
           return (
             <Fragment key={idea.date}>
-              {/* 纸间时间注：把段落分开的是时间，也是它把段落连成一条流 */}
+              {/* 时间注 */}
               <span
                 className="idea-gap reveal"
                 style={{ "--i": 2 + i * 2, "--gml": l.ml } as CSSProperties}
@@ -111,13 +114,12 @@ export function Ideas({ onBack }: { onBack: () => void }) {
                 · {idea.date}
               </span>
               <article
-                className="idea-sheet reveal"
+                className={`idea-sheet idea-sheet--tone-${tone} reveal`}
                 style={
                   {
                     "--i": 3 + i * 2,
                     "--ml": l.ml,
                     "--w": l.w,
-                    "--rot": l.rot,
                   } as CSSProperties
                 }
               >
@@ -130,15 +132,15 @@ export function Ideas({ onBack }: { onBack: () => void }) {
           );
         })}
 
-        {/* 纸流尽头的一小句：页面安静地收住，不硬收边 */}
+        {/* 纸流尽头的一小句 */}
         <p
           className="ideas-end reveal"
-          style={{ "--i": 2 + entries.length * 2 } as CSSProperties}
+          style={{ "--i": 2 + list.length * 2 } as CSSProperties}
         >
           {endNote}
         </p>
 
-        {/* 尽头远岸的几盏灯，很低很远 */}
+        {/* 尽头远岸的几盏灯 */}
         {SHORE.map((x, i) => (
           <TraceLightDot
             key={x}
