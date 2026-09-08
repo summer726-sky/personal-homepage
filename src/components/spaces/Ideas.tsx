@@ -32,6 +32,36 @@ const LAYOUT = [
   { ml: "6%", w: "29rem" },
 ];
 
+// 修饰卡偏移：每张卡背后 2 张错位的暗色调修饰卡，
+// 起阴影/纵深感。每个入口的偏移不同，错落从整体里长出来。
+const BACK_OFFSETS = [
+  // 第一组（Things 位置附近）：向左下扇出
+  [
+    { l: "-10px", t: "10px", r: "3deg", w: "92%", h: "88%", a: 0.7 },
+    { l: "-22px", t: "18px", r: "6deg", w: "86%", h: "82%", a: 0.4 },
+  ],
+  // 第二组
+  [
+    { l: "8px", t: "-8px", r: "-3deg", w: "94%", h: "90%", a: 0.7 },
+    { l: "-18px", t: "12px", r: "-7deg", w: "88%", h: "84%", a: 0.4 },
+  ],
+  // 第三组
+  [
+    { l: "-9px", t: "-7px", r: "-3deg", w: "91%", h: "87%", a: 0.7 },
+    { l: "-20px", t: "-14px", r: "2deg", w: "85%", h: "80%", a: 0.4 },
+  ],
+  // 第四组
+  [
+    { l: "12px", t: "-6px", r: "2deg", w: "93%", h: "89%", a: 0.7 },
+    { l: "-16px", t: "14px", r: "-5deg", w: "87%", h: "83%", a: 0.4 },
+  ],
+  // 第五组
+  [
+    { l: "-8px", t: "8px", r: "2deg", w: "90%", h: "86%", a: 0.7 },
+    { l: "-19px", t: "-11px", r: "-4deg", w: "84%", h: "79%", a: 0.4 },
+  ],
+];
+
 export function Ideas({ onBack }: { onBack: () => void }) {
   const { ambient, entries, endNote } = ideasSpace;
 
@@ -103,7 +133,7 @@ export function Ideas({ onBack }: { onBack: () => void }) {
 
         {list.map((idea, i) => {
           const l = LAYOUT[i % LAYOUT.length];
-          const tone = i % 4; // 4 种深灰黑变体，上亮下暗
+          const backs = BACK_OFFSETS[i % BACK_OFFSETS.length];
           return (
             <Fragment key={idea.date}>
               {/* 时间注 */}
@@ -113,21 +143,40 @@ export function Ideas({ onBack }: { onBack: () => void }) {
               >
                 · {idea.date}
               </span>
-              <article
-                className={`idea-sheet idea-sheet--tone-${tone} reveal`}
+              {/* 卡 + 背后修饰卡：一个 relative 容器包起来 */}
+              <div
+                className="reveal"
                 style={
                   {
                     "--i": 3 + i * 2,
-                    "--ml": l.ml,
-                    "--w": l.w,
+                    marginLeft: l.ml,
+                    width: `min(100%, ${l.w})`,
                   } as CSSProperties
                 }
               >
-                {idea.title ? (
-                  <h2 className="idea-sheet__title">{idea.title}</h2>
-                ) : null}
-                <p className="idea-sheet__body">{idea.body}</p>
-              </article>
+                {backs.map((b, bi) => (
+                  <span
+                    key={bi}
+                    className="idea-back-sheet"
+                    style={
+                      {
+                        left: b.l,
+                        top: b.t,
+                        width: b.w,
+                        height: b.h,
+                        transform: `rotate(${b.r})`,
+                        opacity: b.a,
+                      } as CSSProperties
+                    }
+                  />
+                ))}
+                <article className="idea-sheet relative z-10">
+                  {idea.title ? (
+                    <h2 className="idea-sheet__title">{idea.title}</h2>
+                  ) : null}
+                  <p className="idea-sheet__body">{idea.body}</p>
+                </article>
+              </div>
             </Fragment>
           );
         })}

@@ -955,87 +955,85 @@ button.door {
   opacity: 0.9;
 }
 
-/* 深灰黑卡：圆角面板形态（参考节点工作流工具卡片），
-   近乎纯色底 + 1px 极细暗边 + 轻微内凹阴影，
-   4 种蓝灰色域内变体（都在 env-2 / env-3 范围内）。
-   文字翻转为 ember 系列（暗环境里的冷白）。
-   时间线上最新在最上方，卡的深度从上到下递增（新的稍亮、旧的更深）。 */
+/* 深灰黑卡：纯色调（4 组 tone 中间值 #172030），
+   更薄、更安静，hover 不强调。
+   卡背后有暗色调修饰卡，替代原来 tone 变体的层次差异。 */
 .idea-sheet {
   position: relative;
   margin-left: var(--ml, 0%);
   width: min(100%, var(--w, 30rem));
-  padding: 1.85rem 2rem 2rem;
-  border-radius: 10px;
-  border: 1px solid rgba(100, 120, 150, 0.22);
-  /* 外阴影极轻——卡是"浮在深色环境上"，但悬浮度很低 */
+  padding: 1.4rem 1.5rem 1.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(95, 115, 145, 0.2);
+  background: #172030;
+  /* 更薄的阴影：极轻的外阴影 + 深处一点紫反射，没有悬浮感 */
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.35),
-    0 8px 24px -16px rgba(0, 0, 0, 0.55),
-    /* 深处一抹紫反射，深色卡上更有质感 */
-    0 18px 42px -22px rgba(141, 134, 195, 0.14);
+    0 1px 2px rgba(0, 0, 0, 0.28),
+    0 6px 16px -12px rgba(0, 0, 0, 0.5),
+    0 14px 30px -18px rgba(141, 134, 195, 0.1);
   color: var(--color-ember);
-  transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1),
-    box-shadow 0.5s ease, border-color 0.5s ease;
 }
-/* 4 种深灰黑变体：全部蓝灰色域，从上（最新）到下（最旧）渐深 */
-.idea-sheet--tone-0 {
-  background: linear-gradient(168deg, #1e2838 0%, #172030 100%);
-}
-.idea-sheet--tone-1 {
-  background: linear-gradient(168deg, #1b2434 0%, #141c2b 100%);
-}
-.idea-sheet--tone-2 {
-  background: linear-gradient(168deg, #182030 0%, #111826 100%);
-}
-.idea-sheet--tone-3 {
-  background: linear-gradient(168deg, #151c2a 0%, #0f1522 100%);
-}
-
-/* 深色卡上的暖光高光：更微妙——只有极细的一条，不像白纸那样明显 */
+/* 深色卡上的极微暖光高光：几乎不可见，只是 hint 光照方向 */
 .idea-sheet::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background:
-    /* 极细的内描边高光，模拟圆角卡的边缘反光 */
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      transparent 12%
-    ),
-    /* 右上角一点暖光扫过，沿用全局光照约定 */
-    radial-gradient(
-      42% 32% at 88% 0%,
-      rgba(240, 211, 162, 0.06),
-      transparent 72%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    transparent 10%
+  );
 }
-
-/* hover：卡被轻轻抬起一点 + 边框微亮 + 紫反射加强 */
+/* hover 完全不强调——卡就在那里，不会因为鼠标经过而变样 */
 .idea-sheet:hover {
-  transform: translateY(-3px);
-  border-color: rgba(120, 145, 180, 0.35);
-  box-shadow:
-    0 2px 5px rgba(0, 0, 0, 0.4),
-    0 14px 32px -14px rgba(0, 0, 0, 0.6),
-    0 22px 48px -24px rgba(141, 134, 195, 0.22);
+  border-color: rgba(95, 115, 145, 0.2); /* 与默认相同，覆盖 transition 影响 */
 }
 
-/* 深色卡上的文字：冷白 ember 系列 + 深蓝灰墨对比太弱，
-   用稍亮的 ember 主色；title 稍亮一点做层级 */
+/* —— 修饰性卡片：暗色 back-sheet 变体 ——
+   每卡背后 1-2 张，错位、极淡、渐隐，
+   在深色卡上起阴影/纵深感，不是亮色层叠 */
+.idea-back-sheet {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 6px;
+  background: linear-gradient(
+    148deg,
+    rgba(80, 95, 120, 0.1) 0%,
+    rgba(65, 78, 100, 0.05) 45%,
+    rgba(65, 78, 100, 0) 88%
+  );
+  border: 1px solid rgba(95, 115, 145, 0.08);
+  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.55);
+  -webkit-mask-image: radial-gradient(
+    65% 75% at 50% 20%,
+    rgba(0, 0, 0, 0.85) 32%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    65% 75% at 50% 20%,
+    rgba(0, 0, 0, 0.85) 32%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 92%
+  );
+  filter: blur(0.6px);
+  z-index: -1;
+}
+
+/* 深色卡上的文字 */
 .idea-sheet__title {
   font-family: var(--font-serif);
-  font-size: 1.08rem;
+  font-size: 1.02rem;
   color: var(--color-ember);
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
   opacity: 0.95;
 }
 .idea-sheet__body {
   font-family: var(--font-serif);
-  font-size: 0.92rem;
-  line-height: 1.95;
+  font-size: 0.9rem;
+  line-height: 1.85;
   letter-spacing: 0.01em;
   color: var(--color-ember-soft);
 }
@@ -1050,12 +1048,16 @@ button.door {
   opacity: 0.6;
 }
 
+.idea-sheet {
+  transition: none;
+}
+
 /* —— 移动端：卡回归全宽，减少错落偏移 —— */
 @media (max-width: 720px) {
   .idea-sheet {
     margin-left: 0;
     width: 100%;
-    padding: 1.5rem 1.3rem 1.6rem;
+    padding: 1.2rem 1.1rem 1.3rem;
   }
   .idea-gap {
     margin-left: 0.2rem;
@@ -1064,16 +1066,13 @@ button.door {
     margin-left: 0.2rem;
   }
   .idea-sheet__body {
-    font-size: 0.88rem;
-    line-height: 1.85;
+    font-size: 0.85rem;
+    line-height: 1.75;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .idea-sheet {
     transition: none !important;
-  }
-  .idea-sheet:hover {
-    transform: none;
   }
 }
