@@ -10,9 +10,10 @@ import { Entrance } from "./Entrance";
 import { Fork } from "./Fork";
 import { Personal } from "./Personal";
 import { Things } from "./Things";
+import { Ideas } from "./Ideas";
 import { Reading } from "./Reading";
 
-type SpaceId = "entrance" | "fork" | "personal" | "things" | "reading";
+type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "reading";
 
 const EXIT_MS = 520;
 
@@ -51,11 +52,16 @@ export function Experience() {
       {space === "entrance" && <Entrance onContinue={() => go("fork")} />}
       {space === "fork" && <Fork onPersonal={() => go("personal")} />}
       {space === "personal" && (
-        <Personal onThings={() => go("things")} onBack={() => go("fork")} />
+        <Personal
+          onThings={() => go("things")}
+          onIdeas={() => go("ideas")}
+          onBack={() => go("fork")}
+        />
       )}
       {space === "things" && (
         <Things onOpen={() => go("reading")} onBack={() => go("personal")} />
       )}
+      {space === "ideas" && <Ideas onBack={() => go("personal")} />}
       {space === "reading" && <Reading onBack={() => go("things")} />}
     </div>
   );

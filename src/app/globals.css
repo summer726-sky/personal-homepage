@@ -926,3 +926,125 @@ button.door {
     margin-left: -5rem;
   }
 }
+
+/* ============================================================
+   Ideas 内容空间 · 深夜手稿
+   进入 Ideas 就是进入阅读本身——没有下一级。
+   每段想法是桌上的一页手稿：冷白纸、极轻旋转、横向错落；
+   纸与纸之间漂着极淡的时间小注——把段落分开的是时间，
+   连成一条流的也是时间。错落来自内容：字数不等，纸随之宽窄不一。
+   材质与 Personal 的纸 / Things 的卡同源（冷近白 + 墨色），
+   光照沿用约定：暖光擦过每张纸的右上角。
+   ============================================================ */
+.ideas-stage {
+  padding: 1.5rem 1rem 4rem;
+}
+.ideas-flow {
+  position: relative;
+}
+
+/* 纸间时间注：极淡的小字，偏向下一页纸的方向，像先写下时间、再铺开纸 */
+.idea-gap {
+  display: block;
+  margin: 3rem 0 2.4rem;
+  margin-left: var(--gml, 0%);
+  font-family: var(--font-serif);
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  color: var(--color-ember-faint);
+  opacity: 0.9;
+}
+
+/* 手稿纸：错落的横向偏移 / 宽度 / 极轻旋转由 inline 变量传入 */
+.idea-sheet {
+  position: relative;
+  margin-left: var(--ml, 0%);
+  width: min(100%, var(--w, 30rem));
+  padding: 2.1rem 2.3rem 2.3rem;
+  transform: rotate(var(--rot, 0deg));
+  background: linear-gradient(174deg, var(--color-paper) 0%, var(--color-paper-2) 100%);
+  border: 1px solid rgba(150, 170, 195, 0.45);
+  box-shadow:
+    /* 纸顶被暖光擦到的一线高光 */
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 2px 4px rgba(8, 14, 26, 0.22),
+    0 26px 52px -26px rgba(8, 14, 26, 0.62),
+    /* 深处一抹极淡的紫反射 */
+    0 34px 64px -30px rgba(141, 134, 195, 0.18);
+  color: var(--color-ink);
+  transition: transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1), box-shadow 0.5s ease;
+}
+/* 暖光来自右上：每张纸的右上角被远处那盏灯轻轻擦到 */
+.idea-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    46% 38% at 88% 0%,
+    rgba(240, 211, 162, 0.09),
+    transparent 72%
+  );
+}
+/* hover：纸被轻轻抬起一点，像用指尖按了按又松开 */
+.idea-sheet:hover {
+  transform: rotate(var(--rot, 0deg)) translateY(-3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 4px 8px rgba(8, 14, 26, 0.24),
+    0 32px 58px -26px rgba(8, 14, 26, 0.66),
+    0 40px 70px -30px rgba(141, 134, 195, 0.24);
+}
+
+/* 纸上文字：衬线、宽行距，中文长文的安静排版 */
+.idea-sheet__title {
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  color: var(--color-ink);
+  margin-bottom: 0.9rem;
+}
+.idea-sheet__body {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  line-height: 2.05;
+  letter-spacing: 0.012em;
+  color: var(--color-ink);
+}
+
+/* 纸流尽头的一小句：让页面安静地收住，不硬收边 */
+.ideas-end {
+  margin-top: 3.4rem;
+  margin-left: 34%;
+  font-family: var(--font-serif);
+  font-size: 0.8rem;
+  color: var(--color-ember-faint);
+  opacity: 0.6;
+}
+
+/* —— 移动端：纸回归全宽，错落只留旋转与宽行的呼吸 —— */
+@media (max-width: 720px) {
+  .idea-sheet {
+    margin-left: 0;
+    width: 100%;
+    padding: 1.7rem 1.35rem 1.8rem;
+  }
+  .idea-gap {
+    margin-left: 0.2rem;
+  }
+  .ideas-end {
+    margin-left: 0.2rem;
+  }
+  .idea-sheet__body {
+    font-size: 0.9rem;
+    line-height: 1.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .idea-sheet {
+    transition: none !important;
+  }
+  .idea-sheet:hover {
+    transform: rotate(var(--rot, 0deg));
+  }
+}

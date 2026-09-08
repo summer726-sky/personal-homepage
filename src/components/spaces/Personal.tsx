@@ -85,9 +85,11 @@ function BackSheets({ id }: { id: string }) {
 
 export function Personal({
   onThings,
+  onIdeas,
   onBack,
 }: {
   onThings: () => void;
+  onIdeas: () => void;
   onBack: () => void;
 }) {
   const { things, ideas, moments, fragments } = personal;
@@ -218,15 +220,17 @@ export function Personal({
           style={{ "--fd": "17s", "--fdelay": "-11s" } as CSSProperties}
         >
           <BackSheets id="ideas" />
-          <div
-            className="paper paper-card reveal relative z-[1] w-full"
+          <button
+            type="button"
+            className="paper paper-card enterable reveal relative z-[1] w-full"
             style={{ "--i": 3, "--rot": "2deg" } as CSSProperties}
-            aria-disabled
+            onClick={onIdeas}
+            aria-label="进入 Ideas"
           >
             <p className="paper-title">{ideas.label}</p>
             <p className="paper-meaning">{ideas.meaning}</p>
             <p className="paper-whisper">{ideas.whisper}</p>
-          </div>
+          </button>
         </div>
 
         {/* Moments · 右下，更小更远一点的一张纸条 */}
