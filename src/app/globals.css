@@ -1050,3 +1050,151 @@ button.door {
     transition: none !important;
   }
 }
+
+/* ============================================================
+   Moments 内容空间 · 蜿蜒暖光路径 + 极淡痕迹
+   一条 SVG 暖光路径像在深色桌面上随手画的记号，
+   沿线散落 5-6 个 Moment 痕迹——极淡琥珀底色 + 1px 暗边，
+   像压在桌上的极薄纸片。没有 box-shadow，只有被发现的感觉。
+   蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
+   移动端放弃蜿蜒路径，改为纵向单列流。
+   ============================================================ */
+.moments-stage {
+  padding: 1.5rem 1rem 4rem;
+  isolation: isolate;
+}
+.moments-path-wrap {
+  position: relative;
+  width: 100%;
+  height: 600px;
+}
+/* 暖光蜿蜒路径：极淡虚线 + 断续感 */
+.moments-path-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+.moments-path {
+  fill: none;
+  stroke: rgba(240, 211, 162, 0.22);
+  stroke-width: 1px;
+  stroke-linecap: round;
+  stroke-dasharray: 4 6;
+}
+/* 路径上的节点圆点：暖白，极慢呼吸 */
+.moments-node {
+  fill: rgba(240, 211, 162, 0.55);
+  filter: drop-shadow(0 0 4px rgba(240, 211, 162, 0.25));
+  transform-origin: center;
+  animation: node-breathe 5s ease-in-out infinite;
+}
+@keyframes node-breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.25); }
+}
+
+/* —— Moment 痕迹：极薄纸片 —— */
+.moment-mark {
+  position: absolute;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid rgba(120, 100, 80, 0.14);
+  border-radius: 3px;
+  background: rgba(90, 70, 50, 0.055);
+  max-width: 14rem;
+  transition: border-color 0.4s ease, background 0.4s ease;
+}
+.moment-mark:hover {
+  border-color: rgba(140, 120, 95, 0.22);
+  background: rgba(90, 70, 50, 0.08);
+}
+.moment-mark__time {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: rgba(240, 211, 162, 0.55);
+  margin-bottom: 0.4rem;
+}
+.moment-mark__body {
+  font-family: var(--font-serif);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--color-ember-soft);
+}
+/* 影像占位：极淡暖色底 + 模糊 */
+.moment-mark__img {
+  margin-bottom: 0.55rem;
+  aspect-ratio: 16 / 10;
+  border-radius: 2px;
+  background: rgba(240, 211, 162, 0.08);
+  border: 1px solid rgba(120, 100, 80, 0.1);
+  color: rgba(147, 161, 181, 0.5);
+  font-size: 0.68rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* —— 暖色光斑：比 Ideas/Things 更暖 —— */
+.moments-glow {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(70px);
+  opacity: 0.22;
+}
+
+/* —— 移动端降级：放弃蜿蜒，改为纵向单列流 —— */
+@media (max-width: 720px) {
+  .moments-path-wrap {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+    padding-left: 0.6rem;
+  }
+  .moments-path-svg {
+    display: none;
+  }
+  .moment-mark {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0.4rem;
+  }
+  /* 左侧一条暖白竖虚线替代蜿蜒路径 */
+  .moments-path-wrap::before {
+    content: "";
+    position: absolute;
+    left: 0.15rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: rgba(240, 211, 162, 0.2);
+    background-image: linear-gradient(
+      to bottom,
+      rgba(240, 211, 162, 0.4) 0%,
+      rgba(240, 211, 162, 0.4) 40%,
+      transparent 40%,
+      transparent 100%
+    );
+    background-size: 1px 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moments-node {
+    animation: none;
+    opacity: 0.7;
+  }
+  .moment-mark {
+    transition: none;
+  }
+}

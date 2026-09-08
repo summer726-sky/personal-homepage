@@ -11,9 +11,10 @@ import { Fork } from "./Fork";
 import { Personal } from "./Personal";
 import { Things } from "./Things";
 import { Ideas } from "./Ideas";
+import { Moments } from "./Moments";
 import { Reading } from "./Reading";
 
-type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "reading";
+type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading";
 
 const EXIT_MS = 520;
 
@@ -57,6 +58,7 @@ export function Experience() {
         <Personal
           onThings={() => go("things")}
           onIdeas={() => go("ideas")}
+          onMoments={() => go("moments")}
           onBack={() => go("fork")}
         />
       )}
@@ -64,6 +66,7 @@ export function Experience() {
         <Things onOpen={() => go("reading")} onBack={() => go("personal")} />
       )}
       {space === "ideas" && <Ideas onBack={() => go("personal")} />}
+      {space === "moments" && <Moments onBack={() => go("personal")} />}
       {space === "reading" && <Reading onBack={() => go("things")} />}
     </div>
   );
