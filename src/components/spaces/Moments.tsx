@@ -1,38 +1,19 @@
 "use client";
 
-// Moments 内容空间：蜿蜒暖光路径 + 极淡记忆痕迹。
-// 一条 SVG 暖光虚线像在深色桌面上随手画的记号，
-// 沿线散落 6 个 Moment 痕迹——极淡琥珀底色 + 1px 暗边，
-// 像压在桌上的极薄纸片。没有 box-shadow。
+// Moments 内容空间：纵向暖光时间线 + 左右交错明信片。
+// 一条纵向暖光虚线，线上 6 个固定位置的呼吸圆点。
+// 每个 Moment 是一张不透明明信片——冷白纸质底 + 极细暗边，
+// 交替贴在时间线左右两侧，错落有致。
 // 蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
-// 移动端放弃蜿蜒路径，改为纵向单列流。
 
 import { type CSSProperties } from "react";
 import { momentsSpace } from "@/data/content";
 
-// SVG 路径节点坐标（viewBox 768 x 600）
-// 从上到下蜿蜒：左上 → 右上 → 再右上 → 右下 → 左下 → 再左下
-const PATH_POINTS = [
-  { x: 80, y: 80 },
-  { x: 280, y: 180 },
-  { x: 520, y: 120 },
-  { x: 640, y: 300 },
-  { x: 380, y: 440 },
-  { x: 160, y: 520 },
-];
-// 贝塞尔曲线：让路径自然弯曲
-const PATH_D =
-  "M 80 80 C 150 120, 220 180, 280 180" +
-  " C 340 180, 460 120, 520 120" +
-  " C 580 120, 620 200, 640 300" +
-  " C 650 400, 500 440, 380 440" +
-  " C 260 440, 200 500, 160 520";
-
 // 暖色光斑（琥珀偏）
 const GLOWS = [
-  { left: "35%", top: "30%", w: "320px", h: "240px", c: "rgba(240,200,160,0.15)" },
-  { left: "60%", top: "75%", w: "280px", h: "220px", c: "rgba(230,180,140,0.11)" },
-  { left: "5%", top: "55%", w: "260px", h: "200px", c: "rgba(220,170,130,0.1)" },
+  { left: "10%", top: "20%", w: "280px", h: "220px", c: "rgba(240,200,160,0.12)" },
+  { left: "75%", top: "60%", w: "260px", h: "200px", c: "rgba(230,180,140,0.1)" },
+  { left: "30%", top: "85%", w: "240px", h: "180px", c: "rgba(220,170,130,0.08)" },
 ];
 
 export function Moments({ onBack }: { onBack: () => void }) {
@@ -53,7 +34,7 @@ export function Moments({ onBack }: { onBack: () => void }) {
       </button>
 
       <p
-        className="reveal mt-4 mb-8 font-serif text-base text-ember-soft"
+        className="reveal mt-4 mb-10 font-serif text-base text-ember-soft"
         style={{ "--i": 1 } as CSSProperties}
       >
         {ambient}
@@ -76,53 +57,34 @@ export function Moments({ onBack }: { onBack: () => void }) {
         />
       ))}
 
-      {/* 蜿蜒路径 + 沿线痕迹 */}
-      <div className="moments-path-wrap">
-        {/* SVG 暖光路径 */}
-        <svg
-          className="moments-path-svg reveal"
-          viewBox="0 0 768 600"
-          preserveAspectRatio="none"
-          style={{ "--i": 2 } as CSSProperties}
-        >
-          <path className="moments-path" d={PATH_D} />
-          {/* 节点圆点 */}
-          {PATH_POINTS.map((p, i) => (
-            <circle
-              key={i}
-              className="moments-node"
-              cx={p.x}
-              cy={p.y}
-              r={2.5}
-              style={{ animationDelay: `${i * 0.6}s` }}
-            />
-          ))}
-        </svg>
+      {/* 纵向时间线 + 左右交错明信片 */}
+      <div className="moments-timeline">
+        {/* 时间线：左侧一条暖光虚线 */}
+        <div className="moments-timeline__line" aria-hidden />
 
-        {/* Moment 痕迹：沿线左右交替散落 */}
         {entries.map((m, i) => {
-          const p = PATH_POINTS[i % PATH_POINTS.length];
-          // 偶数靠左、奇数靠右，稍微偏移避免挡路径
-          const side = i % 2 === 0 ? -1 : 1;
-          const offsetX = side * 70;
-          const offsetY = side * 18;
+          const isLeft = i % 2 === 0;
           return (
             <div
               key={m.id}
-              className="moment-mark reveal"
-              style={
-                {
-                  "--i": 3 + i,
-                  left: `${((p.x + offsetX) / 768) * 100}%`,
-                  top: `${((p.y + offsetY) / 600) * 100}%`,
-                } as CSSProperties
-              }
+              className={`moment-row moment-row--${isLeft ? "left" : "right"}`}
             >
-              <span className="moment-mark__time">{m.time}</span>
-              {m.hasImage ? (
-                <div className="moment-mark__img">{m.imageDesc}</div>
-              ) : null}
-              <p className="moment-mark__body">{m.body}</p>
+              {/* 时间线上的小圆点——固定位置，不移动 */}
+              <div className="moment-row__dot" aria-hidden>
+                <span className="moment-row__dot-core" />
+              </div>
+
+              {/* 明信片卡片 */}
+              <div
+                className="moment-postcard reveal"
+                style={{ "--i": 2 + i } as CSSProperties}
+              >
+                <span className="moment-postcard__time">{m.time}</span>
+                {m.hasImage ? (
+                  <div className="moment-postcard__img">{m.imageDesc}</div>
+                ) : null}
+                <p className="moment-postcard__body">{m.body}</p>
+              </div>
             </div>
           );
         })}

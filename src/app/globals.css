@@ -1052,92 +1052,15 @@ button.door {
 }
 
 /* ============================================================
-   Moments 内容空间 · 蜿蜒暖光路径 + 极淡痕迹
-   一条 SVG 暖光路径像在深色桌面上随手画的记号，
-   沿线散落 5-6 个 Moment 痕迹——极淡琥珀底色 + 1px 暗边，
-   像压在桌上的极薄纸片。没有 box-shadow，只有被发现的感觉。
-   蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
-   移动端放弃蜿蜒路径，改为纵向单列流。
+   Moments 内容空间 · 纵向暖光时间线 + 左右交错明信片
+   一条纵向暖光虚线，线上 6 个固定位置的呼吸圆点（不移动）。
+   每个 Moment 是一张不透明明信片——冷白纸质底 + 极细暗边 + 微阴影，
+   交替贴在时间线左右两侧。蓝调里渗入极淡琥珀色。
+   移动端：改为时间线左侧 + 卡片在时间线右侧单列。
    ============================================================ */
 .moments-stage {
   padding: 1.5rem 1rem 4rem;
   isolation: isolate;
-}
-.moments-path-wrap {
-  position: relative;
-  width: 100%;
-  height: 600px;
-}
-/* 暖光蜿蜒路径：极淡虚线 + 断续感 */
-.moments-path-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-}
-.moments-path {
-  fill: none;
-  stroke: rgba(240, 211, 162, 0.22);
-  stroke-width: 1px;
-  stroke-linecap: round;
-  stroke-dasharray: 4 6;
-}
-/* 路径上的节点圆点：暖白，极慢呼吸 */
-.moments-node {
-  fill: rgba(240, 211, 162, 0.55);
-  filter: drop-shadow(0 0 4px rgba(240, 211, 162, 0.25));
-  transform-origin: center;
-  animation: node-breathe 5s ease-in-out infinite;
-}
-@keyframes node-breathe {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.25); }
-}
-
-/* —— Moment 痕迹：极薄纸片 —— */
-.moment-mark {
-  position: absolute;
-  padding: 0.9rem 1rem 1rem;
-  border: 1px solid rgba(120, 100, 80, 0.14);
-  border-radius: 3px;
-  background: rgba(90, 70, 50, 0.055);
-  max-width: 14rem;
-  transition: border-color 0.4s ease, background 0.4s ease;
-}
-.moment-mark:hover {
-  border-color: rgba(140, 120, 95, 0.22);
-  background: rgba(90, 70, 50, 0.08);
-}
-.moment-mark__time {
-  display: block;
-  font-family: var(--font-serif);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  color: rgba(240, 211, 162, 0.55);
-  margin-bottom: 0.4rem;
-}
-.moment-mark__body {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  line-height: 1.7;
-  color: var(--color-ember-soft);
-}
-/* 影像占位：极淡暖色底 + 模糊 */
-.moment-mark__img {
-  margin-bottom: 0.55rem;
-  aspect-ratio: 16 / 10;
-  border-radius: 2px;
-  background: rgba(240, 211, 162, 0.08);
-  border: 1px solid rgba(120, 100, 80, 0.1);
-  color: rgba(147, 161, 181, 0.5);
-  font-size: 0.68rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0.5rem;
 }
 
 /* —— 暖色光斑：比 Ideas/Things 更暖 —— */
@@ -1149,52 +1072,174 @@ button.door {
   opacity: 0.22;
 }
 
-/* —— 移动端降级：放弃蜿蜒，改为纵向单列流 —— */
+/* —— 纵向时间线容器 —— */
+.moments-timeline {
+  position: relative;
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+/* 时间线：左侧一条暖光虚线 */
+.moments-timeline__line {
+  position: absolute;
+  /* 时间线在容器中间偏左，给左侧卡片留空间 */
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(240, 211, 162, 0.5) 0%,
+    rgba(240, 211, 162, 0.5) 40%,
+    transparent 40%,
+    transparent 100%
+  );
+  background-size: 1px 7px;
+}
+
+/* —— 每行：圆点 + 明信片 —— */
+.moment-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 2.6rem;
+  width: 100%;
+}
+/* 最后一行不要下边距 */
+.moment-row:last-child {
+  margin-bottom: 0;
+}
+
+/* 时间线上的小圆点——固定位置，不移动 */
+.moment-row__dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.moment-row__dot-core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(240, 211, 162, 0.7);
+  box-shadow: 0 0 6px rgba(240, 211, 162, 0.35);
+  animation: dot-breathe 5s ease-in-out infinite;
+}
+@keyframes dot-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* —— 明信片：不透明冷白纸质底 —— */
+.moment-postcard {
+  /* 占一半宽度，留给时间线 */
+  width: calc(50% - 2.5rem);
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid rgba(140, 155, 175, 0.22);
+  border-radius: 2px;
+  background: rgba(235, 238, 242, 0.92); /* 冷白不透明 */
+  box-shadow:
+    0 2px 8px rgba(20, 28, 42, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+  position: relative;
+}
+/* 右上角微暖光（光照约定） */
+.moment-postcard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 28%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at top right,
+    rgba(240, 211, 162, 0.12),
+    transparent 70%
+  );
+  border-radius: 0 2px 0 0;
+}
+/* 左侧行：卡片在时间线左边 */
+.moment-row--left .moment-postcard {
+  margin-right: auto;
+  margin-left: 0;
+}
+/* 右侧行：卡片在时间线右边 */
+.moment-row--right .moment-postcard {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.moment-postcard:hover {
+  box-shadow:
+    0 3px 12px rgba(20, 28, 42, 0.32),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  transform: translateY(-2px);
+}
+
+.moment-postcard__time {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: rgba(90, 100, 115, 0.75);
+  margin-bottom: 0.5rem;
+}
+.moment-postcard__body {
+  font-family: var(--font-serif);
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: #2a3240;
+}
+/* 影像占位：不透明冷灰底 */
+.moment-postcard__img {
+  margin-bottom: 0.6rem;
+  aspect-ratio: 16 / 10;
+  border-radius: 1px;
+  background: rgba(180, 190, 205, 0.35);
+  border: 1px solid rgba(140, 155, 175, 0.25);
+  color: rgba(90, 100, 115, 0.5);
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+/* —— 移动端：时间线左移，卡片单列在时间线右侧 —— */
 @media (max-width: 720px) {
-  .moments-path-wrap {
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2.2rem;
-    padding-left: 0.6rem;
+  .moments-timeline__line {
+    left: 0.7rem;
+    transform: none;
   }
-  .moments-path-svg {
-    display: none;
+  .moment-row__dot {
+    left: 0.7rem;
+    transform: translate(-50%, -50%);
+    top: 0.8rem;
   }
-  .moment-mark {
-    position: relative;
-    left: auto !important;
-    top: auto !important;
+  .moment-row {
+    padding-left: 2rem;
+  }
+  .moment-postcard {
     width: 100%;
-    max-width: 100%;
-    margin-left: 0.4rem;
-  }
-  /* 左侧一条暖白竖虚线替代蜿蜒路径 */
-  .moments-path-wrap::before {
-    content: "";
-    position: absolute;
-    left: 0.15rem;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: rgba(240, 211, 162, 0.2);
-    background-image: linear-gradient(
-      to bottom,
-      rgba(240, 211, 162, 0.4) 0%,
-      rgba(240, 211, 162, 0.4) 40%,
-      transparent 40%,
-      transparent 100%
-    );
-    background-size: 1px 6px;
+    margin: 0 !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .moments-node {
+  .moment-row__dot-core {
     animation: none;
-    opacity: 0.7;
+    opacity: 0.8;
   }
-  .moment-mark {
+  .moment-postcard {
     transition: none;
   }
 }
