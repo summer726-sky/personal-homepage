@@ -1052,11 +1052,12 @@ button.door {
 }
 
 /* ============================================================
-   Moments 内容空间 · 纵向暖光时间线 + 左右交错明信片
-   一条纵向暖光虚线，线上 6 个固定位置的呼吸圆点（不移动）。
-   每个 Moment 是一张不透明明信片——冷白纸质底 + 极细暗边 + 微阴影，
-   交替贴在时间线左右两侧。蓝调里渗入极淡琥珀色。
-   移动端：改为时间线左侧 + 卡片在时间线右侧单列。
+   Moments 内容空间 · 轻微蜿蜒暖光时间线 + 左右交错明信片
+   时间线用 SVG path 画一条幅度很小的蜿蜒曲线（±3%），
+   线上 6 个呼吸圆点跟随曲线位置（不移动，只有呼吸动画）。
+   时间标签写在时间线的另一侧（与卡片对面）。
+   蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
+   移动端：时间线左侧竖线 + 卡片和时间标签单列在右侧。
    ============================================================ */
 .moments-stage {
   padding: 1.5rem 1rem 4rem;
@@ -1072,74 +1073,99 @@ button.door {
   opacity: 0.22;
 }
 
-/* —— 纵向时间线容器 —— */
+/* —— 时间线容器：flex column 自然流动，SVG 绝对定位覆盖 —— */
 .moments-timeline {
   position: relative;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
   padding-top: 0.5rem;
   padding-bottom: 1rem;
 }
-/* 时间线：左侧一条暖光虚线 */
-.moments-timeline__line {
+/* 蜿蜒暖光路径 SVG：覆盖整个容器 */
+.moments-timeline__svg {
   position: absolute;
-  /* 时间线在容器中间偏左，给左侧卡片留空间 */
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  transform: translateX(-50%);
-  background-image: linear-gradient(
-    to bottom,
-    rgba(240, 211, 162, 0.5) 0%,
-    rgba(240, 211, 162, 0.5) 40%,
-    transparent 40%,
-    transparent 100%
-  );
-  background-size: 1px 7px;
-}
-
-/* —— 每行：圆点 + 明信片 —— */
-.moment-row {
-  position: relative;
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 2.6rem;
+  inset: 0;
   width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
 }
-/* 最后一行不要下边距 */
-.moment-row:last-child {
-  margin-bottom: 0;
+.moments-timeline__path {
+  fill: none;
+  stroke: rgba(240, 211, 162, 0.45);
+  stroke-width: 1px;
+  stroke-linecap: round;
+  stroke-dasharray: 5 7;
 }
-
-/* 时间线上的小圆点——固定位置，不移动 */
-.moment-row__dot {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-.moment-row__dot-core {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(240, 211, 162, 0.7);
-  box-shadow: 0 0 6px rgba(240, 211, 162, 0.35);
+.moments-timeline__dot {
+  fill: rgba(240, 211, 162, 0.75);
+  filter: drop-shadow(0 0 4px rgba(240, 211, 162, 0.35));
   animation: dot-breathe 5s ease-in-out infinite;
 }
 @keyframes dot-breathe {
-  0%, 100% { opacity: 0.55; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.15); }
+  0%, 100% { opacity: 0.55; r: 0.55; }
+  50% { opacity: 1; r: 0.85; }
+}
+
+/* —— 每行：flex 布局，时间标签和卡片分列时间线两侧 —— */
+.moment-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  z-index: 2; /* 在 SVG 路径之上 */
+}
+
+/* —— 左行：卡片在左（40%宽），时间标签在右（时间线另一侧） —— */
+.moment-row--left {
+  flex-direction: row;
+}
+.moment-row--left .moment-postcard {
+  width: 40%;
+  margin-right: auto;
+}
+.moment-row--left .moment-time {
+  /* 时间标签在时间线右侧（约 52-54% 位置） */
+  margin-left: 0;
+  margin-right: 0;
+  position: absolute;
+  left: 54%;
+  transform: translateY(-50%);
+  top: 50%;
+}
+
+/* —— 右行：时间标签在左，卡片在右（时间线另一侧） —— */
+.moment-row--right {
+  flex-direction: row-reverse;
+}
+.moment-row--right .moment-postcard {
+  width: 40%;
+  margin-left: auto;
+}
+.moment-row--right .moment-time {
+  /* 时间标签在时间线左侧（约 46-48% 位置） */
+  position: absolute;
+  right: 54%;
+  transform: translateY(-50%);
+  top: 50%;
+}
+
+/* —— 时间标签：极细暖白字 —— */
+.moment-time {
+  font-family: var(--font-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: rgba(240, 211, 162, 0.7);
+  white-space: nowrap;
+  flex-shrink: 0;
+  z-index: 3;
 }
 
 /* —— 明信片：不透明冷白纸质底 —— */
 .moment-postcard {
-  /* 占一半宽度，留给时间线 */
-  width: calc(50% - 2.5rem);
   padding: 1rem 1.1rem 1.1rem;
   border: 1px solid rgba(140, 155, 175, 0.22);
   border-radius: 2px;
@@ -1149,6 +1175,7 @@ button.door {
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
   transition: box-shadow 0.4s ease, transform 0.4s ease;
   position: relative;
+  flex-shrink: 0;
 }
 /* 右上角微暖光（光照约定） */
 .moment-postcard::before {
@@ -1166,16 +1193,6 @@ button.door {
   );
   border-radius: 0 2px 0 0;
 }
-/* 左侧行：卡片在时间线左边 */
-.moment-row--left .moment-postcard {
-  margin-right: auto;
-  margin-left: 0;
-}
-/* 右侧行：卡片在时间线右边 */
-.moment-row--right .moment-postcard {
-  margin-left: auto;
-  margin-right: 0;
-}
 
 .moment-postcard:hover {
   box-shadow:
@@ -1184,14 +1201,6 @@ button.door {
   transform: translateY(-2px);
 }
 
-.moment-postcard__time {
-  display: block;
-  font-family: var(--font-serif);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  color: rgba(90, 100, 115, 0.75);
-  margin-bottom: 0.5rem;
-}
 .moment-postcard__body {
   font-family: var(--font-serif);
   font-size: 0.86rem;
@@ -1214,28 +1223,53 @@ button.door {
   padding: 0.5rem;
 }
 
-/* —— 移动端：时间线左移，卡片单列在时间线右侧 —— */
+/* —— 移动端：时间线左侧竖线，卡片+时间标签在右侧单列 —— */
 @media (max-width: 720px) {
-  .moments-timeline__line {
-    left: 0.7rem;
-    transform: none;
-  }
-  .moment-row__dot {
-    left: 0.7rem;
-    transform: translate(-50%, -50%);
-    top: 0.8rem;
-  }
-  .moment-row {
+  .moments-timeline {
     padding-left: 2rem;
   }
-  .moment-postcard {
+  .moments-timeline__svg {
+    display: none;
+  }
+  /* 左侧一条暖白竖虚线 */
+  .moments-timeline::before {
+    content: "";
+    position: absolute;
+    left: 0.7rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-image: linear-gradient(
+      to bottom,
+      rgba(240, 211, 162, 0.5) 0%,
+      rgba(240, 211, 162, 0.5) 40%,
+      transparent 40%,
+      transparent 100%
+    );
+    background-size: 1px 7px;
+  }
+  .moment-row,
+  .moment-row--left,
+  .moment-row--right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+  .moment-row--left .moment-postcard,
+  .moment-row--right .moment-postcard {
     width: 100%;
-    margin: 0 !important;
+    margin: 0;
+  }
+  .moment-row--left .moment-time,
+  .moment-row--right .moment-time {
+    position: static;
+    transform: none;
+    order: -1; /* 时间标签在卡片上方 */
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .moment-row__dot-core {
+  .moments-timeline__dot {
     animation: none;
     opacity: 0.8;
   }

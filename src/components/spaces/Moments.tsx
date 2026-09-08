@@ -1,9 +1,9 @@
 "use client";
 
-// Moments 内容空间：纵向暖光时间线 + 左右交错明信片。
-// 一条纵向暖光虚线，线上 6 个固定位置的呼吸圆点。
-// 每个 Moment 是一张不透明明信片——冷白纸质底 + 极细暗边，
-// 交替贴在时间线左右两侧，错落有致。
+// Moments 内容空间：轻微蜿蜒的纵向暖光时间线 + 左右交错明信片。
+// 时间线用 SVG path 画一条幅度很小的蜿蜒曲线（±3%），
+// 线上 6 个呼吸圆点跟随曲线位置（不移动，只有呼吸动画）。
+// 时间标签写在时间线的另一侧（与卡片对面）。
 // 蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
 
 import { type CSSProperties } from "react";
@@ -16,8 +16,41 @@ const GLOWS = [
   { left: "30%", top: "85%", w: "240px", h: "180px", c: "rgba(220,170,130,0.08)" },
 ];
 
+// 蜿蜒路径节点 x（viewBox 宽 100），幅度 ±3px（容器宽度约 ±1.5%）
+const WOBBLE_X = [47, 53, 46, 54, 48, 52];
+
+// 估算每个 row 在容器中的中心 y 百分比
+// 假设有图卡约占 22%，纯文字卡约占 14%，gap 约 3%
+function estimateRowCenters(count: number): number[] {
+  const heights = [22, 14, 22, 14, 14, 14]; // 百分比估算
+  const gap = 3;
+  let y = 3; // 顶部 padding
+  const centers: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const h = heights[i] ?? 15;
+    centers.push(y + h / 2);
+    y += h + gap;
+  }
+  return centers;
+}
+
 export function Moments({ onBack }: { onBack: () => void }) {
   const { ambient, entries } = momentsSpace;
+  const centers = estimateRowCenters(entries.length);
+
+  // 生成蜿蜒 SVG path（viewBox 0 0 100 100，y 用百分比）
+  let d = `M ${WOBBLE_X[0]} ${centers[0]}`;
+  for (let i = 1; i < entries.length; i++) {
+    const px = WOBBLE_X[i - 1];
+    const py = centers[i - 1];
+    const cx = WOBBLE_X[i];
+    const cy = centers[i];
+    const cpx1 = px + (cx - px) * 0.5;
+    const cpx2 = cx - (cx - px) * 0.5;
+    const cpy1 = py + (cy - py) * 0.5;
+    const cpy2 = cy - (cy - py) * 0.5;
+    d += ` C ${cpx1} ${cpy1}, ${cpx2} ${cpy2}, ${cx} ${cy}`;
+  }
 
   return (
     <div className="moments-stage mx-auto w-full max-w-3xl">
@@ -57,10 +90,27 @@ export function Moments({ onBack }: { onBack: () => void }) {
         />
       ))}
 
-      {/* 纵向时间线 + 左右交错明信片 */}
+      {/* 蜿蜒时间线 + 交错明信片 */}
       <div className="moments-timeline">
-        {/* 时间线：左侧一条暖光虚线 */}
-        <div className="moments-timeline__line" aria-hidden />
+        {/* 蜿蜒暖光路径（绝对定位覆盖在 row 上方） */}
+        <svg
+          className="moments-timeline__svg"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden
+        >
+          <path className="moments-timeline__path" d={d} />
+          {entries.map((_, i) => (
+            <circle
+              key={i}
+              className="moments-timeline__dot"
+              cx={WOBBLE_X[i]}
+              cy={centers[i]}
+              r={0.8}
+              style={{ animationDelay: `${i * 0.6}s` }}
+            />
+          ))}
+        </svg>
 
         {entries.map((m, i) => {
           const isLeft = i % 2 === 0;
@@ -69,17 +119,19 @@ export function Moments({ onBack }: { onBack: () => void }) {
               key={m.id}
               className={`moment-row moment-row--${isLeft ? "left" : "right"}`}
             >
-              {/* 时间线上的小圆点——固定位置，不移动 */}
-              <div className="moment-row__dot" aria-hidden>
-                <span className="moment-row__dot-core" />
-              </div>
+              {/* 时间标签：在时间线另一侧 */}
+              <span
+                className="moment-time reveal"
+                style={{ "--i": 2 + i } as CSSProperties}
+              >
+                {m.time}
+              </span>
 
               {/* 明信片卡片 */}
               <div
                 className="moment-postcard reveal"
                 style={{ "--i": 2 + i } as CSSProperties}
               >
-                <span className="moment-postcard__time">{m.time}</span>
                 {m.hasImage ? (
                   <div className="moment-postcard__img">{m.imageDesc}</div>
                 ) : null}
