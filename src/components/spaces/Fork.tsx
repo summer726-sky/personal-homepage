@@ -9,9 +9,27 @@ import { fork } from "@/data/content";
 import { Door } from "./primitives";
 import { TraceLightDot, TraceImage } from "./traces";
 
-export function Fork({ onPersonal }: { onPersonal: () => void }) {
+export function Fork({
+  onPersonal,
+  onBack,
+}: {
+  onPersonal: () => void;
+  onBack: () => void;
+}) {
   return (
     <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-12">
+      {/* 返回上一级：左上角一抹细线箭头，最后才浮现，安静得像墙面的一部分 */}
+      <button
+        type="button"
+        onClick={onBack}
+        className="space-back reveal absolute left-0 top-0"
+        style={{ "--i": 3 } as CSSProperties}
+        aria-label="返回上一级"
+      >
+        <span className="space-back__arrow" aria-hidden>←</span>
+        <span>返回</span>
+      </button>
+
       {/* 两扇门之上：一团模糊的远窗光和一盏灯，像街对面 */}
       <TraceImage className="-top-16 left-[12%] w-32" />
       <TraceLightDot
