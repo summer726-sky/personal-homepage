@@ -1095,19 +1095,30 @@ button.door {
 }
 .moments-timeline__path {
   fill: none;
-  stroke: rgba(240, 211, 162, 0.45);
-  stroke-width: 1px;
+  /* 不透明实色暖白 */
+  stroke: #d9c094;
+  /* 非缩放描边：线宽与虚线均按屏幕像素渲染，弯曲处虚线不会被拉伸成线段 */
+  vector-effect: non-scaling-stroke;
+  stroke-width: 0.5px;
   stroke-linecap: round;
-  stroke-dasharray: 5 7;
+  stroke-dasharray: 1 1.6;
 }
+/* 圆点：HTML 元素，绝对定位，保证正圆 */
 .moments-timeline__dot {
-  fill: rgba(240, 211, 162, 0.75);
-  filter: drop-shadow(0 0 4px rgba(240, 211, 162, 0.35));
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f0d3a2; /* 不透明实色 */
+  box-shadow: 0 0 5px rgba(240, 211, 162, 0.55);
+  transform: translate(-50%, -50%);
   animation: dot-breathe 5s ease-in-out infinite;
+  z-index: 2;
+  pointer-events: none;
 }
 @keyframes dot-breathe {
-  0%, 100% { opacity: 0.55; r: 0.55; }
-  50% { opacity: 1; r: 0.85; }
+  0%, 100% { transform: translate(-50%, -50%) scale(0.75); opacity: 0.75; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
 }
 
 /* —— 每行：flex 布局，时间标签和卡片分列时间线两侧 —— */
@@ -1193,6 +1204,37 @@ button.door {
   );
   border-radius: 0 2px 0 0;
 }
+/* 极轻微短反光（参考 Things 内部但更轻更短，不喧宾夺主） */
+.moment-postcard::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  height: 32%;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 237, 243, 0.45) 0%,
+    rgba(217, 225, 234, 0.16) 40%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 35%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 35%,
+    transparent 100%
+  );
+  pointer-events: none;
+  opacity: 0.55;
+  transform: translateZ(-1px);
+}
 
 .moment-postcard:hover {
   box-shadow:
@@ -1231,7 +1273,11 @@ button.door {
   .moments-timeline__svg {
     display: none;
   }
-  /* 左侧一条暖白竖虚线 */
+  /* 蜿蜒圆点（HTML）在移动端隐藏，改用每行左侧实色圆点 */
+  .moments-timeline__dot {
+    display: none;
+  }
+  /* 左侧一条暖白竖虚线（不透明实色） */
   .moments-timeline::before {
     content: "";
     position: absolute;
@@ -1241,12 +1287,24 @@ button.door {
     width: 1px;
     background-image: linear-gradient(
       to bottom,
-      rgba(240, 211, 162, 0.5) 0%,
-      rgba(240, 211, 162, 0.5) 40%,
-      transparent 40%,
+      #d9c094 0%,
+      #d9c094 45%,
+      transparent 45%,
       transparent 100%
     );
-    background-size: 1px 7px;
+    background-size: 1px 6px;
+  }
+  /* 每行在竖线上有一颗不透明实色小圆点 */
+  .moment-row::before {
+    content: "";
+    position: absolute;
+    left: -1.3rem;
+    top: 0.9rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f0d3a2;
+    box-shadow: 0 0 5px rgba(240, 211, 162, 0.55);
   }
   .moment-row,
   .moment-row--left,

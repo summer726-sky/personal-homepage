@@ -92,25 +92,34 @@ export function Moments({ onBack }: { onBack: () => void }) {
 
       {/* 蜿蜒时间线 + 交错明信片 */}
       <div className="moments-timeline">
-        {/* 蜿蜒暖光路径（绝对定位覆盖在 row 上方） */}
+        {/* 蜿蜒暖光路径（仅画曲线；圆点用 HTML 元素保证正圆） */}
         <svg
           className="moments-timeline__svg"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
           aria-hidden
         >
-          <path className="moments-timeline__path" d={d} />
-          {entries.map((_, i) => (
-            <circle
-              key={i}
-              className="moments-timeline__dot"
-              cx={WOBBLE_X[i]}
-              cy={centers[i]}
-              r={0.8}
-              style={{ animationDelay: `${i * 0.6}s` }}
-            />
-          ))}
+          <path
+            className="moments-timeline__path"
+            d={d}
+            vectorEffect="non-scaling-stroke"
+          />
         </svg>
+
+        {/* 时间线上的呼吸圆点：HTML 元素，绝对定位，保持正圆 */}
+        {entries.map((_, i) => (
+          <span
+            key={i}
+            className="moments-timeline__dot"
+            style={
+              {
+                left: `${WOBBLE_X[i]}%`,
+                top: `${centers[i]}%`,
+                animationDelay: `${i * 0.6}s`,
+              } as CSSProperties
+            }
+          />
+        ))}
 
         {entries.map((m, i) => {
           const isLeft = i % 2 === 0;
