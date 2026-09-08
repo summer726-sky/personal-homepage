@@ -955,57 +955,31 @@ button.door {
   opacity: 0.9;
 }
 
-/* 深灰黑卡：纯色调（4 组 tone 中间值 #172030），
-   更薄、更安静，hover 不强调。
-   卡背后有暗色调修饰卡，替代原来 tone 变体的层次差异。 */
+/* 深灰黑卡 → 虚线框效果（迁移自 Things 内部 Reading 的 .image-slot）
+   极轻的虚线 + 极淡蓝灰底，无阴影，2px 圆角。
+   在深色环境上降低虚线透明度，让它更安静。 */
 .idea-sheet {
   position: relative;
   margin-left: var(--ml, 0%);
   width: min(100%, var(--w, 30rem));
-  padding: 1.4rem 1.5rem 1.55rem;
-  border-radius: 8px;
-  border: 1px solid rgba(95, 115, 145, 0.2);
-  background: #172030;
-  /* 更薄的阴影：极轻的外阴影 + 深处一点紫反射，没有悬浮感 */
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.28),
-    0 6px 16px -12px rgba(0, 0, 0, 0.5),
-    0 14px 30px -18px rgba(141, 134, 195, 0.1);
+  padding: 1.5rem 1.6rem 1.65rem;
+  border: 1px dashed rgba(180, 200, 225, 0.28);
+  background: rgba(90, 120, 160, 0.04);
+  border-radius: 2px;
   color: var(--color-ember);
 }
-/* 深色卡上的极微暖光高光：几乎不可见，只是 hint 光照方向 */
-.idea-sheet::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    transparent 10%
-  );
-}
-/* hover 完全不强调——卡就在那里，不会因为鼠标经过而变样 */
+/* hover 不强调 */
 .idea-sheet:hover {
-  border-color: rgba(95, 115, 145, 0.2); /* 与默认相同，覆盖 transition 影响 */
+  border-color: rgba(180, 200, 225, 0.28);
 }
 
-/* —— 修饰性卡片：暗色 back-sheet 变体 ——
-   每卡背后 1-2 张，错位、极淡、渐隐，
-   在深色卡上起阴影/纵深感，不是亮色层叠 */
+/* —— 修饰性卡片：暗色 back-sheet 变体 —— */
 .idea-back-sheet {
   position: absolute;
   pointer-events: none;
-  border-radius: 6px;
-  background: linear-gradient(
-    148deg,
-    rgba(80, 95, 120, 0.1) 0%,
-    rgba(65, 78, 100, 0.05) 45%,
-    rgba(65, 78, 100, 0) 88%
-  );
-  border: 1px solid rgba(95, 115, 145, 0.08);
-  box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.55);
+  border-radius: 2px;
+  background: rgba(90, 120, 160, 0.025);
+  border: 1px dashed rgba(140, 160, 190, 0.1);
   -webkit-mask-image: radial-gradient(
     65% 75% at 50% 20%,
     rgba(0, 0, 0, 0.85) 32%,
@@ -1018,7 +992,7 @@ button.door {
     rgba(0, 0, 0, 0.4) 60%,
     transparent 92%
   );
-  filter: blur(0.6px);
+  filter: blur(0.5px);
   z-index: -1;
 }
 
