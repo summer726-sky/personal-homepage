@@ -49,8 +49,15 @@ export function Experience() {
     [leaving, space]
   );
 
+  const isScrollSpace = space === "ideas" || space === "moments" || space === "reading";
+
   return (
-    <div key={space} className={`space-root ${leaving ? "is-leaving" : ""}`}>
+    <div
+      key={space}
+      className={`space-root ${isScrollSpace ? "space-root--scroll" : ""} ${
+        leaving ? "is-leaving" : ""
+      }`}
+    >
       {space === "entrance" && (
         <Entrance
           onContinue={() => go("fork")}

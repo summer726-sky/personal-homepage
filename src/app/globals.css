@@ -96,13 +96,21 @@ body::after {
 /* —— 空间转场 · 收束 → 聚拢 → 暂停 → 展开 ————————————————
    只让空间回应，不让空间表演。 */
 .space-root {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6rem 1.5rem 4rem;
+  padding: clamp(3.25rem, 9vh, 6rem) 1.5rem clamp(2.25rem, 6vh, 4rem);
   position: relative;
   transition: opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease;
+}
+/* 阅读类空间（Ideas/Moments/Reading）允许纵向滚动 */
+.space-root--scroll {
+  height: auto;
+  min-height: 100dvh;
+  overflow: visible;
+  align-items: flex-start;
 }
 .space-root.is-leaving {
   opacity: 0;
@@ -788,6 +796,14 @@ button.door {
   .back-sheet,
   .link-sheet {
     opacity: 0.75;
+  }
+}
+
+/* 矮视口：非滚动空间的固定布局整体微缩，避免触发滚动或裁切 */
+@media (max-height: 700px) {
+  .space-root:has(.things-stage) .things-stage {
+    transform: scale(0.88);
+    transform-origin: center;
   }
 }
 
