@@ -180,7 +180,120 @@ body::after {
   font-size: clamp(1.65rem, 1.08rem + 2.1vw, 3.1rem);
 }
 .intro-block {
-  gap: clamp(1.8rem, 1rem + 2.6vh, 3rem);
+  /* 行距收紧至约 2/3 */
+  gap: clamp(1.2rem, 0.67rem + 1.75vh, 2rem);
+}
+
+/* —— Entrance 边角晕染：三种颜色、面积参差、有方向性的线性延展 ——
+   不是圆形光斑，是带状/羽状的色雾，像墙面上光影的褶皱。
+   每块用多层 radial-gradient 叠加制造深浅变化；与文字区域
+   有极小一处擦过，文字始终在其上。颜色取自既有调色板：
+   冷蓝灰（房间）、暖琥珀（窗的光反射）、紫（暮光反射）。 */
+.haze-a {
+  position: absolute;
+  inset: -5% -8% 35% -10%;
+  background:
+    radial-gradient(58% 70% at 18% 22%, rgba(36, 58, 92, 0.34), transparent 70%),
+    radial-gradient(42% 55% at 38% 12%, rgba(22, 38, 64, 0.26), transparent 68%),
+    radial-gradient(70% 38% at 22% 38%, rgba(48, 72, 108, 0.22), transparent 72%),
+    radial-gradient(30% 40% at 52% 18%, rgba(28, 46, 76, 0.18), transparent 66%);
+  filter: blur(2px);
+  opacity: 0.9;
+}
+.haze-b {
+  position: absolute;
+  inset: 42% -10% -8% 28%;
+  background:
+    radial-gradient(50% 60% at 78% 60%, rgba(240, 200, 160, 0.22), transparent 72%),
+    radial-gradient(32% 42% at 88% 38%, rgba(222, 178, 130, 0.16), transparent 70%),
+    radial-gradient(60% 30% at 68% 78%, rgba(228, 186, 142, 0.14), transparent 74%),
+    radial-gradient(24% 30% at 56% 52%, rgba(236, 196, 158, 0.12), transparent 68%);
+  filter: blur(2.4px);
+  opacity: 0.82;
+}
+.haze-c {
+  position: absolute;
+  inset: 60% 12% 8% 8%;
+  background:
+    radial-gradient(70% 28% at 50% 50%, rgba(141, 134, 195, 0.16), transparent 76%),
+    radial-gradient(40% 18% at 32% 60%, rgba(120, 116, 176, 0.12), transparent 72%),
+    radial-gradient(34% 20% at 72% 42%, rgba(150, 142, 206, 0.1), transparent 70%);
+  filter: blur(2.8px);
+  opacity: 0.75;
+}
+
+/* —— Personal 晕染：取消暖窗，颜色与首页同源（冷蓝灰为主 + 极淡紫 + 极淡暖），
+   面积大、有线条褶皱感而非图形轮廓，分布在角落和边界，与卡片轻微擦过。 —— */
+/* 左上角：冷蓝灰主基调，大面积向右下延展，擦过纸片左上 */
+.haze-personal-tl {
+  position: absolute;
+  inset: -12% -10% 22% -14%;
+  background:
+    radial-gradient(65% 58% at 15% 18%, rgba(36, 58, 92, 0.48), transparent 72%),
+    radial-gradient(40% 48% at 35% 6%, rgba(22, 38, 64, 0.34), transparent 70%),
+    radial-gradient(58% 32% at 20% 44%, rgba(48, 72, 108, 0.28), transparent 74%),
+    radial-gradient(30% 38% at 50% 20%, rgba(28, 46, 76, 0.22), transparent 68%),
+    radial-gradient(42% 22% at 8% 32%, rgba(40, 64, 100, 0.18), transparent 72%);
+  filter: blur(4px);
+  opacity: 1;
+}
+/* 右下角：冷蓝灰为主 + 极淡暖琥珀（不强调暖），擦过纸片右下 */
+.haze-personal-br {
+  position: absolute;
+  inset: 38% -12% -12% 35%;
+  background:
+    radial-gradient(58% 52% at 75% 62%, rgba(36, 58, 92, 0.4), transparent 74%),
+    radial-gradient(34% 40% at 88% 48%, rgba(22, 38, 64, 0.26), transparent 72%),
+    radial-gradient(42% 28% at 58% 78%, rgba(48, 72, 108, 0.2), transparent 76%),
+    radial-gradient(24% 30% at 82% 32%, rgba(240, 200, 160, 0.14), transparent 70%);
+  filter: blur(3.6px);
+  opacity: 0.95;
+}
+/* 底部边界：极淡紫反射横亘，连接左右下角，减少下方空旷感 */
+.haze-personal-bottom {
+  position: absolute;
+  inset: 68% 6% -8% 6%;
+  background:
+    radial-gradient(75% 45% at 50% 50%, rgba(141, 134, 195, 0.22), transparent 78%),
+    radial-gradient(38% 28% at 22% 60%, rgba(120, 116, 176, 0.16), transparent 74%),
+    radial-gradient(32% 22% at 78% 38%, rgba(150, 142, 206, 0.12), transparent 72%);
+  filter: blur(4px);
+  opacity: 0.92;
+}
+
+/* —— Things 晕染：冷蓝灰（上方墙）+ 紫（下方地板暮光），横向延展 ——
+   卡片轮播是主角，晕染在舞台上下空区，不进入舞台。 */
+.haze-things-top {
+  position: absolute;
+  inset: -8% -10% 62% -10%;
+  background:
+    radial-gradient(60% 50% at 50% 60%, rgba(36, 58, 92, 0.3), transparent 72%),
+    radial-gradient(35% 40% at 25% 40%, rgba(22, 38, 64, 0.2), transparent 70%),
+    radial-gradient(30% 35% at 75% 30%, rgba(48, 72, 108, 0.16), transparent 72%);
+  filter: blur(2.8px);
+  opacity: 0.85;
+}
+.haze-things-bottom {
+  position: absolute;
+  inset: 72% -8% -8% -8%;
+  background:
+    radial-gradient(65% 40% at 50% 40%, rgba(141, 134, 195, 0.14), transparent 76%),
+    radial-gradient(35% 25% at 30% 60%, rgba(120, 116, 176, 0.1), transparent 72%),
+    radial-gradient(30% 20% at 70% 30%, rgba(150, 142, 206, 0.08), transparent 70%);
+  filter: blur(3px);
+  opacity: 0.7;
+}
+
+/* —— Contact 晕染：极淡冷蓝灰单块，信息行是主角，晕染最弱 —— */
+.haze-contact {
+  position: absolute;
+  inset: 20% 10% 30% 10%;
+  background:
+    radial-gradient(55% 50% at 30% 40%, rgba(36, 58, 92, 0.18), transparent 74%),
+    radial-gradient(35% 35% at 70% 60%, rgba(22, 38, 64, 0.1), transparent 72%),
+    radial-gradient(30% 20% at 50% 80%, rgba(48, 72, 108, 0.08), transparent 70%);
+  filter: blur(3.2px);
+  opacity: 0.6;
 }
 .fork-prompt {
   font-size: clamp(1.3rem, 1rem + 0.9vw, 1.8rem);

@@ -76,7 +76,16 @@ export function Things({
   );
 
   return (
-    <div className="things-stage mx-auto flex w-full max-w-5xl flex-col items-center gap-6">
+    <>
+      {/* 房间层：冷蓝灰（上方墙）+ 紫（下方地板暮光）横向延展，
+          填补轮播舞台上下空区，不进入舞台 */}
+      <div className="room-layer" aria-hidden>
+        <span className="room-ceiling" />
+        <span className="haze-things-top" />
+        <span className="haze-things-bottom" />
+      </div>
+
+      <div className="room-content things-stage mx-auto flex w-full max-w-5xl flex-col items-center gap-6">
       {/* 顶栏：返回 + 空间名 */}
       <div
         className="reveal flex w-full items-center justify-between px-2"
@@ -142,6 +151,7 @@ export function Things({
       >
         点击两侧卡片切换 · 中央卡片进入
       </p>
-    </div>
+      </div>
+    </>
   );
 }

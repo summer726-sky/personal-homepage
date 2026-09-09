@@ -7,29 +7,14 @@
 
 import type { CSSProperties } from "react";
 import { contact } from "@/data/content";
-import { TraceImage, TraceLightDot } from "./traces";
 
 export function Contact({ onBack }: { onBack: () => void }) {
   return (
     <>
-      {/* 房间层：极简——天花板、一扇很远的窗、一盏灯 */}
+      {/* 房间层：极淡冷蓝灰单块晕染，信息行是主角，晕染最弱 */}
       <div className="room-layer" aria-hidden>
         <span className="room-ceiling" />
-        <TraceImage
-          className="t-farther room-window"
-          style={{ right: "11vw", top: "14vh" } as CSSProperties}
-        />
-        <TraceLightDot
-          className="h-1.5 w-1.5"
-          style={
-            {
-              left: "15vw",
-              bottom: "18vh",
-              animationDelay: "8s",
-              animationDuration: "23s",
-            } as CSSProperties
-          }
-        />
+        <span className="haze-contact" />
       </div>
 
       <div className="room-content shell-text relative mx-auto w-full">

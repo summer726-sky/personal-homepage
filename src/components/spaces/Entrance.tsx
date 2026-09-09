@@ -10,7 +10,6 @@
 import type { CSSProperties } from "react";
 import { entrance } from "@/data/content";
 import { ArrowDown } from "./primitives";
-import { TraceLightDot } from "./traces";
 
 // 每行一个轻微的横向错位，让排版不死板
 const offsets = ["0.15rem", "-0.35rem"];
@@ -24,45 +23,18 @@ export function Entrance({
 }) {
   return (
     <>
-      {/* 房间层：铺满视口的环境证据 */}
+      {/* 房间层：铺满视口的色雾晕染（取代光斑）
+          三种颜色、面积参差、有方向性的线性延展，与文字小区域擦过 */}
       <div className="room-layer" aria-hidden>
         {/* 天花板暗带：墙与顶的交界 */}
         <span className="room-ceiling" />
-        {/* 远灯：一盏在高处右，两盏在低处对岸 */}
-        <TraceLightDot
-          className="h-2 w-2"
-          style={
-            {
-              right: "8vw",
-              top: "30vh",
-              animationDelay: "3s",
-              animationDuration: "22s",
-            } as CSSProperties
-          }
-        />
-        <TraceLightDot
-          className="h-1.5 w-1.5"
-          style={
-            {
-              left: "17vw",
-              bottom: "15vh",
-              animationDelay: "9s",
-              animationDuration: "26s",
-            } as CSSProperties
-          }
-        />
-        <TraceLightDot
-          className="h-1.5 w-1.5"
-          style={
-            {
-              right: "25vw",
-              bottom: "10vh",
-              animationDelay: "14s",
-              animationDuration: "19s",
-            } as CSSProperties
-          }
-        />
-        {/* 地平线：紫反射 + 靠窗一侧的微暖 */}
+        {/* A · 左上冷蓝灰雾：主基调，从左上向右下延展，擦过文字块左上角 */}
+        <span className="haze-a" />
+        {/* B · 右下暖琥珀：窗一侧的光从地板反射上来，擦过文字块右下 */}
+        <span className="haze-b" />
+        {/* C · 中下紫反射：地板上的暮光反射，横亘在文字与箭头之间 */}
+        <span className="haze-c" />
+        {/* 地平线：紫反射 + 靠窗一侧的微暖（保留，与晕染同源） */}
         <span className="room-horizon" />
       </div>
 
@@ -70,10 +42,10 @@ export function Entrance({
         className="room-content shell-text relative mx-auto flex w-full flex-col justify-between"
         style={{ minHeight: "62vh" }}
       >
-        {/* 文字整体下移一行、左移约一个字 */}
+        {/* 文字整体下移一行半（含本轮再下移半行）、左移约一个字 */}
         <div
           className="intro-block flex flex-col"
-          style={{ marginTop: "1.4em", marginLeft: "-1em" }}
+          style={{ marginTop: "2.2em", marginLeft: "-1em" }}
         >
           {entrance.lines.map((line, i) => (
             <p

@@ -11,25 +11,10 @@ import type { CSSProperties } from "react";
 import { personal } from "@/data/content";
 import { EnvFragment } from "./primitives";
 import {
-  TraceImage,
-  TraceLightDot,
   TraceWindowCorner,
   TraceFadedWriting,
   TracePrintGhost,
-  CLOCK_WARM_IMG,
 } from "./traces";
-
-// 极疏的微尘 / 落雪：位置固定、周期各异，非同步
-const SPECKS = Array.from({ length: 14 }, (_, i) => ({
-  left: (5 + i * 6.6 + (i % 3) * 2.4) % 94,
-  size: 1 + (i % 3) * 0.6,
-  dur: 23 + ((i * 3) % 5) * 4,
-  delay: -((i * 3.7) % 26),
-  o: 0.12 + (i % 4) * 0.05,
-}));
-
-// 远岸的一排暖灯（很低、很远，t-far 自带模糊）
-const SHORE_LIGHTS = [6, 16, 27, 40, 55, 68, 80, 90];
 
 // 层叠衬纸：每张入口纸背后错位扇出，近层稍实、远层淡入背景，
 // 并向相邻入口方向伸展。依据手绘示意图的层叠关系。
@@ -97,67 +82,13 @@ export function Personal({
   const { things, ideas, moments, fragments } = personal;
   return (
     <>
-      {/* 房间层：微尘、冷顶光、暖窗、远岸灯铺满整个视口 */}
+      {/* 房间层：色雾晕染分布在角落和边界，与首页同源色但不强调暖
+          左上冷蓝灰大面积、右下冷蓝灰+极淡暖、底部极淡紫反射 */}
       <div className="room-layer" aria-hidden>
         <span className="room-ceiling" />
-
-        {/* 空气：极疏的微尘，落得很慢（位置按视口分布） */}
-        <span className="air-layer air-layer--room">
-          {SPECKS.map((s, i) => (
-            <span
-              key={i}
-              className="air-speck"
-              style={
-                {
-                  left: `${s.left}vw`,
-                  top: `${(6 + i * 6.7 + (i % 4) * 3.1) % 86}vh`,
-                  width: `${s.size}px`,
-                  height: `${s.size}px`,
-                  "--sd": `${s.dur}s`,
-                  "--sdel": `${s.delay}s`,
-                  "--o": s.o,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </span>
-
-        {/* 背后的一束冷顶光 */}
-        <span
-          className="t-far"
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            top: "-2.5rem",
-            height: "18rem",
-            background:
-              "radial-gradient(48% 62% at 56% 0%, rgba(196,210,230,0.10), transparent 72%)",
-          }}
-        />
-
-        {/* 右上远处：暖的虚化照片——夜色里一扇亮着灯的窗 */}
-        <TraceImage
-          src={CLOCK_WARM_IMG}
-          className="room-window"
-          style={{ right: "9vw", top: "9vh", width: "clamp(9rem, 16vw, 15rem)" } as CSSProperties}
-        />
-
-        {/* 远岸的一排暖灯：沿视口底部排开 */}
-        {SHORE_LIGHTS.map((x, i) => (
-          <TraceLightDot
-            key={x}
-            className=""
-            style={
-              {
-                left: `${x}vw`,
-                top: `${86 + (i % 2) * 2.2}vh`,
-                animationDelay: `${i * 2.3}s`,
-                animationDuration: `${15 + (i % 3) * 4}s`,
-              } as CSSProperties
-            }
-          />
-        ))}
+        <span className="haze-personal-tl" />
+        <span className="haze-personal-br" />
+        <span className="haze-personal-bottom" />
       </div>
 
       <div className="room-content shell-mid relative mx-auto w-full">
