@@ -127,6 +127,22 @@ body::after {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  /* 入场晕染绽放：从略收缩、更模糊、透明，缓慢"收→放"到全形，
+     与退出（is-leaving 的 fade+blur+scale）互为反向，更慢更安静，
+     避免进入时一大片颜色瞬间跳出。 */
+  animation: room-haze-bloom 1.5s cubic-bezier(0.22, 0.61, 0.21, 1) both;
+}
+@keyframes room-haze-bloom {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
 }
 /* 内容层浮在房间层之上 */
 .room-content {
@@ -212,12 +228,14 @@ body::after {
   position: absolute;
   inset: 42% -10% -8% 28%;
   background:
-    radial-gradient(50% 60% at 78% 60%, rgba(240, 200, 160, 0.22), transparent 72%),
-    radial-gradient(32% 42% at 88% 38%, rgba(222, 178, 130, 0.16), transparent 70%),
-    radial-gradient(60% 30% at 68% 78%, rgba(228, 186, 142, 0.14), transparent 74%),
-    radial-gradient(24% 30% at 56% 52%, rgba(236, 196, 158, 0.12), transparent 68%);
-  filter: blur(2.4px);
-  opacity: 0.82;
+    /* 核心暖光：一团，中心在右下角，范围大、衰减缓慢 */
+    radial-gradient(62% 72% at 80% 64%, rgba(238, 202, 166, 0.2), rgba(238, 202, 166, 0.1) 42%, transparent 82%),
+    /* 光滑外晕：更大更淡，与核心同心微偏，融合成单一轮廓 */
+    radial-gradient(78% 84% at 82% 58%, rgba(228, 190, 154, 0.1), rgba(228, 190, 154, 0.04) 55%, transparent 88%),
+    /* 朝左上的极淡延展：保持曲度方向，只一抹不形成坨 */
+    radial-gradient(70% 50% at 62% 72%, rgba(234, 198, 168, 0.05), transparent 86%);
+  filter: blur(7px);
+  opacity: 0.88;
 }
 .haze-c {
   position: absolute;
@@ -230,43 +248,47 @@ body::after {
   opacity: 0.75;
 }
 
-/* —— Personal 晕染：取消暖窗，颜色与首页同源（冷蓝灰为主 + 极淡紫 + 极淡暖），
-   面积大、有线条褶皱感而非图形轮廓，分布在角落和边界，与卡片轻微擦过。 —— */
-/* 左上角：冷蓝灰主基调，大面积向右下延展，擦过纸片左上 */
+/* —— Personal 晕染：与首页（Entrance）完全同一套效果 ——
+   直接迁移首页三块：左上冷蓝灰褶皱 / 右下光滑暖光 / 底部紫反射。 */
 .haze-personal-tl {
   position: absolute;
-  inset: -12% -10% 22% -14%;
+  inset: -5% -8% 35% -10%;
   background:
-    radial-gradient(65% 58% at 15% 18%, rgba(36, 58, 92, 0.48), transparent 72%),
-    radial-gradient(40% 48% at 35% 6%, rgba(22, 38, 64, 0.34), transparent 70%),
-    radial-gradient(58% 32% at 20% 44%, rgba(48, 72, 108, 0.28), transparent 74%),
-    radial-gradient(30% 38% at 50% 20%, rgba(28, 46, 76, 0.22), transparent 68%),
-    radial-gradient(42% 22% at 8% 32%, rgba(40, 64, 100, 0.18), transparent 72%);
-  filter: blur(4px);
-  opacity: 1;
+    radial-gradient(58% 70% at 18% 22%, rgba(36, 58, 92, 0.34), transparent 70%),
+    radial-gradient(42% 55% at 38% 12%, rgba(22, 38, 64, 0.26), transparent 68%),
+    radial-gradient(70% 38% at 22% 38%, rgba(48, 72, 108, 0.22), transparent 72%),
+    radial-gradient(30% 40% at 52% 18%, rgba(28, 46, 76, 0.18), transparent 66%);
+  filter: blur(2px);
+  opacity: 0.9;
 }
-/* 右下角：冷蓝灰为主 + 极淡暖琥珀（不强调暖），擦过纸片右下 */
 .haze-personal-br {
   position: absolute;
-  inset: 38% -12% -12% 35%;
+  inset: 42% -10% -8% 28%;
   background:
-    radial-gradient(58% 52% at 75% 62%, rgba(36, 58, 92, 0.4), transparent 74%),
-    radial-gradient(34% 40% at 88% 48%, rgba(22, 38, 64, 0.26), transparent 72%),
-    radial-gradient(42% 28% at 58% 78%, rgba(48, 72, 108, 0.2), transparent 76%),
-    radial-gradient(24% 30% at 82% 32%, rgba(240, 200, 160, 0.14), transparent 70%);
-  filter: blur(3.6px);
-  opacity: 0.95;
+    /* 极光上层：薰衣草紫，一抹最亮的色带（偏上，像极光的弧顶） */
+    radial-gradient(58% 46% at 72% 50%, rgba(184, 168, 218, 0.13), rgba(184, 168, 218, 0.05) 52%, transparent 84%),
+    /* 极淡粉：只在右上角透一点点，克制 */
+    radial-gradient(34% 30% at 88% 44%, rgba(208, 170, 196, 0.08), transparent 80%),
+    /* 核心：蓝紫光（紫偏多），一团连续光滑 */
+    radial-gradient(62% 72% at 80% 64%, rgba(156, 138, 200, 0.18), rgba(156, 138, 200, 0.09) 42%, transparent 82%),
+    /* 深紫：沉在下方，作为暗部托住色带 */
+    radial-gradient(70% 60% at 78% 74%, rgba(108, 88, 156, 0.12), rgba(108, 88, 156, 0.05) 55%, transparent 86%),
+    /* 外晕：偏蓝的蓝紫，融合成单一轮廓 */
+    radial-gradient(78% 84% at 82% 58%, rgba(128, 124, 190, 0.08), rgba(128, 124, 190, 0.03) 55%, transparent 88%),
+    /* 朝左上延展：极淡紫蓝 */
+    radial-gradient(70% 50% at 62% 72%, rgba(140, 132, 196, 0.04), transparent 86%);
+  filter: blur(8px);
+  opacity: 0.9;
 }
-/* 底部边界：极淡紫反射横亘，连接左右下角，减少下方空旷感 */
 .haze-personal-bottom {
   position: absolute;
-  inset: 68% 6% -8% 6%;
+  inset: 60% 12% 8% 8%;
   background:
-    radial-gradient(75% 45% at 50% 50%, rgba(141, 134, 195, 0.22), transparent 78%),
-    radial-gradient(38% 28% at 22% 60%, rgba(120, 116, 176, 0.16), transparent 74%),
-    radial-gradient(32% 22% at 78% 38%, rgba(150, 142, 206, 0.12), transparent 72%);
-  filter: blur(4px);
-  opacity: 0.92;
+    radial-gradient(70% 28% at 50% 50%, rgba(141, 134, 195, 0.16), transparent 76%),
+    radial-gradient(40% 18% at 32% 60%, rgba(120, 116, 176, 0.12), transparent 72%),
+    radial-gradient(34% 20% at 72% 42%, rgba(150, 142, 206, 0.1), transparent 70%);
+  filter: blur(2.8px);
+  opacity: 0.75;
 }
 
 /* —— Things 晕染：冷蓝灰（上方墙）+ 紫（下方地板暮光），横向延展 ——
@@ -827,6 +849,9 @@ button.door {
   .arrow-down {
     animation: none !important;
     opacity: 1;
+  }
+  .room-layer {
+    animation: none !important;
   }
   .door-whisper,
   .paper-whisper {
