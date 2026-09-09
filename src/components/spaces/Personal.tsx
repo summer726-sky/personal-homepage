@@ -96,7 +96,71 @@ export function Personal({
 }) {
   const { things, ideas, moments, fragments } = personal;
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <>
+      {/* 房间层：微尘、冷顶光、暖窗、远岸灯铺满整个视口 */}
+      <div className="room-layer" aria-hidden>
+        <span className="room-ceiling" />
+
+        {/* 空气：极疏的微尘，落得很慢（位置按视口分布） */}
+        <span className="air-layer air-layer--room">
+          {SPECKS.map((s, i) => (
+            <span
+              key={i}
+              className="air-speck"
+              style={
+                {
+                  left: `${s.left}vw`,
+                  top: `${(6 + i * 6.7 + (i % 4) * 3.1) % 86}vh`,
+                  width: `${s.size}px`,
+                  height: `${s.size}px`,
+                  "--sd": `${s.dur}s`,
+                  "--sdel": `${s.delay}s`,
+                  "--o": s.o,
+                } as CSSProperties
+              }
+            />
+          ))}
+        </span>
+
+        {/* 背后的一束冷顶光 */}
+        <span
+          className="t-far"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: "-2.5rem",
+            height: "18rem",
+            background:
+              "radial-gradient(48% 62% at 56% 0%, rgba(196,210,230,0.10), transparent 72%)",
+          }}
+        />
+
+        {/* 右上远处：暖的虚化照片——夜色里一扇亮着灯的窗 */}
+        <TraceImage
+          src={CLOCK_WARM_IMG}
+          className="room-window"
+          style={{ right: "9vw", top: "9vh", width: "clamp(9rem, 16vw, 15rem)" } as CSSProperties}
+        />
+
+        {/* 远岸的一排暖灯：沿视口底部排开 */}
+        {SHORE_LIGHTS.map((x, i) => (
+          <TraceLightDot
+            key={x}
+            className=""
+            style={
+              {
+                left: `${x}vw`,
+                top: `${86 + (i % 2) * 2.2}vh`,
+                animationDelay: `${i * 2.3}s`,
+                animationDuration: `${15 + (i % 3) * 4}s`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+
+      <div className="room-content shell-mid relative mx-auto w-full">
       {/* 返回上一级：小巧的细线箭头，hover 时轻微左移并亮起 */}
       <button
         type="button"
@@ -117,58 +181,6 @@ export function Personal({
       </p>
 
       <div className="relative">
-        {/* 空气：极疏的微尘，落得很慢 */}
-        <span className="air-layer" aria-hidden>
-          {SPECKS.map((s, i) => (
-            <span
-              key={i}
-              className="air-speck"
-              style={
-                {
-                  left: `${s.left}%`,
-                  width: `${s.size}px`,
-                  height: `${s.size}px`,
-                  "--sd": `${s.dur}s`,
-                  "--sdel": `${s.delay}s`,
-                  "--o": s.o,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </span>
-
-        {/* 背后的一束冷顶光 */}
-        <span
-          aria-hidden
-          className="t-far pointer-events-none absolute inset-x-2 -top-10 h-72"
-          style={{
-            background:
-              "radial-gradient(48% 62% at 56% 0%, rgba(196,210,230,0.10), transparent 72%)",
-          }}
-        />
-
-        {/* 右上角：暖的虚化照片——夜色里一扇亮着灯的窗 */}
-        <TraceImage
-          src={CLOCK_WARM_IMG}
-          className="absolute -top-16 right-[1%] w-40 sm:w-52"
-        />
-
-        {/* 远岸的一排暖灯 */}
-        {SHORE_LIGHTS.map((x, i) => (
-          <TraceLightDot
-            key={x}
-            className="absolute"
-            style={
-              {
-                left: `${x}%`,
-                top: `${93 + (i % 2) * 2.2}%`,
-                animationDelay: `${i * 2.3}s`,
-                animationDuration: `${15 + (i % 3) * 4}s`,
-              } as CSSProperties
-            }
-          />
-        ))}
-
         {/* 左侧墙里半扇窗框，只露一角 */}
         <TraceWindowCorner className="absolute -left-4 top-[34%] w-14" />
         {/* 中下空处：被擦掉的一行字 */}
@@ -278,6 +290,7 @@ export function Personal({
           {fragments[2]}
         </EnvFragment>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

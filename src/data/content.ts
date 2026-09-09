@@ -17,6 +17,17 @@ export const entrance = {
   lines: ["你来了。", `很高兴见到你，我是 ${profile.name}。`],
 };
 
+// 联系方式：信息直接陈列，不藏在卡片里。
+// 真实内容待用户填入；href 留空的行只作展示（不可点）。
+export const contact = {
+  ambient: "如果有什么想说的，信能寄到这里。",
+  entries: [
+    { label: "邮箱", value: profile.email, href: `mailto:${profile.email}` },
+    { label: "微信", value: "（你的微信号）", href: null as string | null },
+    { label: "GitHub", value: "github.com/your-name", href: profile.github },
+  ],
+};
+
 export const fork = {
   prompt: "或许，我是这样的我",
   personal: {

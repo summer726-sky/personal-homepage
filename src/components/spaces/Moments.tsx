@@ -9,11 +9,11 @@
 import { type CSSProperties } from "react";
 import { momentsSpace } from "@/data/content";
 
-// 暖色光斑（琥珀偏）
+// 暖色光斑（琥珀偏）：在房间层按视口分布，宽屏两翼也是暖的
 const GLOWS = [
-  { left: "10%", top: "20%", w: "280px", h: "220px", c: "rgba(240,200,160,0.12)" },
-  { left: "75%", top: "60%", w: "260px", h: "200px", c: "rgba(230,180,140,0.1)" },
-  { left: "30%", top: "85%", w: "240px", h: "180px", c: "rgba(220,170,130,0.08)" },
+  { left: "12vw", top: "18%", w: "300px", h: "230px", c: "rgba(240,200,160,0.12)" },
+  { left: "72vw", top: "55%", w: "280px", h: "210px", c: "rgba(230,180,140,0.1)" },
+  { left: "20vw", top: "82%", w: "260px", h: "190px", c: "rgba(220,170,130,0.08)" },
 ];
 
 // 蜿蜒路径节点 x（viewBox 宽 100），幅度 ±3px（容器宽度约 ±1.5%）
@@ -53,7 +53,28 @@ export function Moments({ onBack }: { onBack: () => void }) {
   }
 
   return (
-    <div className="moments-stage mx-auto w-full max-w-3xl">
+    <>
+      {/* 房间层：暖色光斑铺满视口，宽屏两翼也是暖的 */}
+      <div className="room-layer" aria-hidden>
+        <span className="room-ceiling" />
+        {GLOWS.map((g, i) => (
+          <span
+            key={i}
+            className="moments-glow"
+            style={
+              {
+                left: g.left,
+                top: g.top,
+                width: g.w,
+                height: g.h,
+                background: `radial-gradient(55% 55% at 50% 50%, ${g.c}, transparent 78%)`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </div>
+
+      <div className="room-content shell-timeline moments-stage mx-auto w-full">
       {/* 返回上一级 */}
       <button
         type="button"
@@ -72,23 +93,6 @@ export function Moments({ onBack }: { onBack: () => void }) {
       >
         {ambient}
       </p>
-
-      {/* 暖色光斑 */}
-      {GLOWS.map((g, i) => (
-        <span
-          key={i}
-          className="moments-glow"
-          style={
-            {
-              left: g.left,
-              top: g.top,
-              width: g.w,
-              height: g.h,
-              background: `radial-gradient(55% 55% at 50% 50%, ${g.c}, transparent 78%)`,
-            } as CSSProperties
-          }
-        />
-      ))}
 
       {/* 蜿蜒时间线 + 交错明信片 */}
       <div className="moments-timeline">
@@ -150,6 +154,7 @@ export function Moments({ onBack }: { onBack: () => void }) {
           );
         })}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

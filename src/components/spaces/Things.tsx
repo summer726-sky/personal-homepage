@@ -89,7 +89,7 @@ export function Things({
       </div>
 
       {/* 当前分类名：随切换直接更替，不加动效 */}
-      <p className="font-serif text-2xl text-ember">
+      <p className="things-category font-serif text-ember">
         {CARDS[active].categoryLabel}
       </p>
 

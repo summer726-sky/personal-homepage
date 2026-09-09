@@ -71,7 +71,55 @@ export function Ideas({ onBack }: { onBack: () => void }) {
   const list = entries;
 
   return (
-    <div className="ideas-stage relative mx-auto w-full max-w-3xl">
+    <>
+      {/* 房间层：微尘、冷顶光、暖窗铺满视口 */}
+      <div className="room-layer" aria-hidden>
+        <span className="room-ceiling" />
+
+        {/* 空气：极疏的微尘，随整页滚动分布 */}
+        <span className="air-layer air-layer--room">
+          {SPECKS.map((s, i) => (
+            <span
+              key={i}
+              className="air-speck"
+              style={
+                {
+                  left: `${s.left}vw`,
+                  top: `${(5 + i * 10.3 + (i % 3) * 4) % 92}%`,
+                  width: `${s.size}px`,
+                  height: `${s.size}px`,
+                  "--sd": `${s.dur}s`,
+                  "--sdel": `${s.delay}s`,
+                  "--o": s.o,
+                } as CSSProperties
+              }
+            />
+          ))}
+        </span>
+
+        {/* 顶部一束更弱的冷光 */}
+        <span
+          className="t-far"
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: "-2rem",
+            height: "16rem",
+            background:
+              "radial-gradient(48% 62% at 52% 0%, rgba(196,210,230,0.09), transparent 72%)",
+          }}
+        />
+
+        {/* 右上角：同一扇暖窗，更小更远 */}
+        <TraceImage
+          src={CLOCK_WARM_IMG}
+          className="room-window"
+          style={{ right: "10vw", top: "8vh", width: "clamp(6.5rem, 10vw, 10rem)" } as CSSProperties}
+        />
+      </div>
+
+      <div className="room-content shell-mid relative mx-auto w-full">
       {/* 顶栏：返回 + 空间名 */}
       <div
         className="reveal flex w-full items-center justify-between"
@@ -93,44 +141,8 @@ export function Ideas({ onBack }: { onBack: () => void }) {
         {ambient}
       </p>
 
-      {/* 顶部一束更弱的冷光 */}
-      <span
-        aria-hidden
-        className="t-far pointer-events-none absolute inset-x-2 -top-8 h-64"
-        style={{
-          background:
-            "radial-gradient(48% 62% at 52% 0%, rgba(196,210,230,0.09), transparent 72%)",
-        }}
-      />
-
-      {/* 右上角：同一扇暖窗，更小更远 */}
-      <TraceImage
-        src={CLOCK_WARM_IMG}
-        className="absolute -top-14 right-[-2%] w-28 sm:w-36"
-      />
-
       {/* 卡片时间线 */}
       <div className="ideas-flow relative mt-6">
-        {/* 空气：极疏的微尘 */}
-        <span className="air-layer" aria-hidden>
-          {SPECKS.map((s, i) => (
-            <span
-              key={i}
-              className="air-speck"
-              style={
-                {
-                  left: `${s.left}%`,
-                  width: `${s.size}px`,
-                  height: `${s.size}px`,
-                  "--sd": `${s.dur}s`,
-                  "--sdel": `${s.delay}s`,
-                  "--o": s.o,
-                } as CSSProperties
-              }
-            />
-          ))}
-        </span>
-
         {list.map((idea, i) => {
           const l = LAYOUT[i % LAYOUT.length];
           const backs = BACK_OFFSETS[i % BACK_OFFSETS.length];
@@ -205,6 +217,7 @@ export function Ideas({ onBack }: { onBack: () => void }) {
           />
         ))}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

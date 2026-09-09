@@ -13,8 +13,9 @@ import { Things } from "./Things";
 import { Ideas } from "./Ideas";
 import { Moments } from "./Moments";
 import { Reading } from "./Reading";
+import { Contact } from "./Contact";
 
-type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading";
+type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading" | "contact";
 
 const EXIT_MS = 520;
 
@@ -50,7 +51,12 @@ export function Experience() {
 
   return (
     <div key={space} className={`space-root ${leaving ? "is-leaving" : ""}`}>
-      {space === "entrance" && <Entrance onContinue={() => go("fork")} />}
+      {space === "entrance" && (
+        <Entrance
+          onContinue={() => go("fork")}
+          onContact={() => go("contact")}
+        />
+      )}
       {space === "fork" && (
         <Fork onPersonal={() => go("personal")} onBack={() => go("entrance")} />
       )}
@@ -68,6 +74,7 @@ export function Experience() {
       {space === "ideas" && <Ideas onBack={() => go("personal")} />}
       {space === "moments" && <Moments onBack={() => go("personal")} />}
       {space === "reading" && <Reading onBack={() => go("things")} />}
+      {space === "contact" && <Contact onBack={() => go("entrance")} />}
     </div>
   );
 }
