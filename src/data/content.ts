@@ -185,6 +185,31 @@ export const ideasSpace = {
   endNote: "（还有一些，等想清楚了再写。）",
 };
 
+// Photography Gallery：曲线背景陈列 + 前景单张大图的照片墙。
+// 每一项是一张照片：白底占位（用户后续替换为真实图片）+ 1-2 行小字说明。
+// orientation: 横屏 / 竖屏，决定背景陈列行和前景照片的宽高比。
+export type PhotoEntry = {
+  id: string;
+  caption: string; // 1-2 行，不超过照片宽度
+  hint?: string; // 可选的更短的辅助说明
+  orientation: "landscape" | "portrait";
+};
+
+export const photoGallery: PhotoEntry[] = [
+  ...Array.from({ length: 20 }, (_, i) => ({
+    id: `p${i + 1}`,
+    caption: "（这里放一张照片）",
+    hint: "（地点 · 季节）",
+    orientation: "landscape" as const,
+  })),
+  ...Array.from({ length: 20 }, (_, i) => ({
+    id: `p${i + 21}`,
+    caption: "（这里放一张照片）",
+    hint: "（地点 · 季节）",
+    orientation: "portrait" as const,
+  })),
+];
+
 // Moments 内容空间：蜿蜒暖光路径上散落的记忆痕迹。
 // 进入即阅读——不做下一级展开，文字内嵌在痕迹里。
 // 每个 Moment 是一段 100-150 字的碎片，纯文字或影像+文字。

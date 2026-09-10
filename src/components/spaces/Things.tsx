@@ -58,7 +58,7 @@ export function Things({
   onOpen,
   onBack,
 }: {
-  onOpen: () => void;
+  onOpen: (category: string) => void;
   onBack: () => void;
 }) {
   const [active, setActive] = useState(0);
@@ -67,7 +67,7 @@ export function Things({
     (i: number) => {
       const offset = relOffset(i, active);
       if (offset === 0) {
-        onOpen();
+        onOpen(CARDS[i].category);
         return;
       }
       setActive(i);

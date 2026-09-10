@@ -14,10 +14,22 @@ import { Ideas } from "./Ideas";
 import { Moments } from "./Moments";
 import { Reading } from "./Reading";
 import { Contact } from "./Contact";
+import { Gallery } from "./Gallery";
 
-type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading" | "contact";
+type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading" | "contact" | "gallery";
 
 const EXIT_MS = 520;
+
+// Things 需要区分：photography → gallery，其他 → reading
+const THINGS_OPEN_MAP: Record<string, SpaceId> = {
+  photography: "gallery",
+  music: "reading",
+  travel: "reading",
+  reading: "reading",
+  film: "reading",
+  object: "reading",
+  food: "reading",
+};
 
 export function Experience() {
   const [space, setSpace] = useState<SpaceId>("entrance");
@@ -76,12 +88,16 @@ export function Experience() {
         />
       )}
       {space === "things" && (
-        <Things onOpen={() => go("reading")} onBack={() => go("personal")} />
+        <Things
+          onOpen={(cat) => go(THINGS_OPEN_MAP[cat] || "reading")}
+          onBack={() => go("personal")}
+        />
       )}
       {space === "ideas" && <Ideas onBack={() => go("personal")} />}
       {space === "moments" && <Moments onBack={() => go("personal")} />}
       {space === "reading" && <Reading onBack={() => go("things")} />}
       {space === "contact" && <Contact onBack={() => go("entrance")} />}
+      {space === "gallery" && <Gallery onBack={() => go("things")} />}
     </div>
   );
 }

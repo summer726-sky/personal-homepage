@@ -1659,3 +1659,266 @@ button.door {
     transition: none;
   }
 }
+
+/* ============================================================
+   Photography Gallery · 左侧展示照片 + 右侧四行照片序列（手绘构图）
+   背景：蓝灰夜色（整体提亮）+ 极淡晕染；左暗右亮（交接线在展示照片右侧，过渡拉长）
+   序列：四行横/竖分行，左缘沿弧形边界（mask 椭圆）柔和隐没，
+         右缘直接切入切出（overflow 硬切，无过渡）
+   前景：左侧单张大图（横/竖屏不同宽高比）+ 下方小字说明
+   交互：滚轮切换（直接替换），序列 rAF 缓动循环滑动
+   入场：gallery-bloom 显现动画（仅进入时播放，切换照片不触发）
+   ============================================================ */
+
+/* —— 入场显现动画 —— */
+@keyframes gallery-bloom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* —— 背景呼吸：极慢的明暗起伏 —— */
+@keyframes gallery-breathe {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.92;
+  }
+}
+
+/* —— Gallery 根容器：蓝灰夜色底（整体提亮）+ 冷雾晕染 ——
+   左侧暗区独立成层（.gallery-dark）：位于展示照片之下、
+   滚动序列之上，轮廓不变（14%→48% 多档缓降，交界线穿过照片中部）。
+   晕染：大面积冷雾铺陈 + 中右部冷光 + 右缘冷光 + 左上冷雾 +
+   右上暖光 + 底部紫反射，层次更多但都保持克制。 */
+.gallery-root {
+  position: absolute;
+  inset: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background:
+    /* 晕染：大面积冷雾铺满亮区 */
+    radial-gradient(85% 70% at 68% 42%, rgba(74, 96, 130, 0.1), transparent 80%),
+    /* 晕染：序列后方冷光 */
+    radial-gradient(60% 50% at 64% 46%, rgba(92, 114, 148, 0.2), transparent 74%),
+    /* 晕染：右缘冷光，让亮区更通透 */
+    radial-gradient(42% 62% at 90% 52%, rgba(84, 104, 138, 0.12), transparent 76%),
+    /* 晕染：左上角一缕冷雾 */
+    radial-gradient(46% 36% at 16% 2%, rgba(96, 118, 150, 0.09), transparent 75%),
+    /* 晕染：右上暖光擦过（光照约定） */
+    radial-gradient(50% 38% at 84% 6%, rgba(240, 211, 162, 0.05), transparent 70%),
+    /* 晕染：底部紫反射 */
+    radial-gradient(60% 28% at 50% 106%, rgba(141, 134, 195, 0.09), transparent 75%),
+    /* 底色：蓝灰夜色（较 Things 稍提亮） */
+    linear-gradient(180deg, #1c2635 0%, #182231 46%, #141d2b 100%);
+  user-select: none;
+  cursor: default;
+  z-index: 10;
+  /* 入场显现（仅 mount 时播放一次） */
+  animation: gallery-bloom 1.4s cubic-bezier(0.22, 0.61, 0.21, 1) both;
+}
+
+/* —— 左侧暗区（晕染层）：序列之上、展示照片之下 ——
+   沿用晕染的多档缓降过渡：暗区在左缘，14% 后开始缓降，
+   交界线约在照片中部（~28%），48% 后完全放开。 */
+.gallery-dark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(4, 8, 16, 0.24) 0%,
+    rgba(4, 8, 16, 0.24) 14%,
+    rgba(4, 8, 16, 0.17) 24%,
+    rgba(4, 8, 16, 0.1) 33%,
+    rgba(4, 8, 16, 0.04) 41%,
+    rgba(4, 8, 16, 0) 48%,
+    rgba(4, 8, 16, 0) 100%
+  );
+}
+
+/* —— 序列背景层 ——
+   弧形隐没边界：椭圆 mask 中心在左缘中点，边界在中部向右鼓出
+   （即手绘红线轮廓）。序列在边界处柔和过渡显现/隐没；
+   页面右缘由 overflow 直接切出，无过渡。 */
+.gallery-curves {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 52% 55% at 0% 50%, transparent 86%, #000 100%);
+  mask-image: radial-gradient(ellipse 52% 55% at 0% 50%, transparent 86%, #000 100%);
+  /* 呼吸感：极慢的透明度起伏 */
+  animation: gallery-breathe 12s ease-in-out infinite;
+}
+
+/* 每行序列：从左缘起铺（左段被 mask 隐没），延伸出右缘 */
+.gallery-curve-row {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  will-change: transform;
+  white-space: nowrap;
+}
+
+/* 缩略图：白色圆角占位，无框 */
+.gallery-thumb {
+  border-radius: 3px;
+  background: #e8edf3;
+  box-shadow:
+    0 2px 12px -4px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  flex-shrink: 0;
+}
+
+/* —— 前景内容层 —— */
+.gallery-foreground {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(1.5rem, 4vh, 3rem) clamp(1.5rem, 4vw, 3rem);
+}
+
+/* 主内容区：左侧照片块 */
+.gallery-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: clamp(0rem, 8vw, 6rem);
+}
+
+/* 照片块：包含照片 + 说明文字 */
+.gallery-photo-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 当前照片：无边框、圆角、白色占位 */
+.gallery-photo {
+  border-radius: 3px;
+  background: #e8edf3;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.35),
+    0 24px 48px -24px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  flex-shrink: 0;
+}
+/* 横屏照片 */
+.gallery-photo--landscape {
+  width: clamp(280px, 34vw, 440px);
+  height: clamp(190px, 23vw, 300px);
+}
+/* 竖屏照片 */
+.gallery-photo--portrait {
+  width: clamp(240px, 28vw, 360px);
+  height: clamp(320px, 38vw, 460px);
+}
+
+/* 说明文字：不超照片宽度 */
+.gallery-caption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.gallery-caption--landscape {
+  max-width: clamp(280px, 34vw, 440px);
+}
+.gallery-caption--portrait {
+  max-width: clamp(240px, 28vw, 360px);
+}
+.gallery-caption__main {
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-ember);
+  margin: 0;
+}
+.gallery-caption__hint {
+  font-family: var(--font-serif);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--color-ember-faint);
+  margin: 0;
+}
+
+/* —— 底栏：纯色文字条 —— */
+.gallery-bottom-bar {
+  position: relative;
+  height: clamp(2.2rem, 4.5vh, 3rem);
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
+  background: rgba(8, 14, 24, 0.55);
+  border-top: 1px solid rgba(100, 120, 150, 0.08);
+  margin: 0 calc(-1 * clamp(1.5rem, 4vw, 3rem)); /* 撑满宽度 */
+}
+.gallery-bottom-text {
+  font-family: var(--font-serif);
+  font-size: 0.76rem;
+  letter-spacing: 0.14em;
+  color: var(--color-ember-soft);
+  opacity: 0.7;
+}
+
+/* —— 滚轮提示：极淡、放在底栏左侧 —— */
+.gallery-hint {
+  position: absolute;
+  bottom: clamp(2.4rem, 5vh, 3.3rem);
+  right: clamp(1.5rem, 4vw, 3rem);
+  font-family: var(--font-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: var(--color-ember-faint);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* —— 移动端适配 —— */
+@media (max-width: 720px) {
+  .gallery-main {
+    padding-left: 0;
+    justify-content: center;
+  }
+  .gallery-photo--landscape {
+    width: clamp(220px, 70vw, 300px);
+    height: clamp(150px, 47vw, 200px);
+  }
+  .gallery-photo--portrait {
+    width: clamp(200px, 60vw, 260px);
+    height: clamp(270px, 80vw, 350px);
+  }
+  .gallery-caption--landscape {
+    max-width: clamp(220px, 70vw, 300px);
+  }
+  .gallery-caption--portrait {
+    max-width: clamp(200px, 60vw, 260px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-root {
+    animation: none !important;
+  }
+  .gallery-curves {
+    animation: none !important;
+  }
+  .gallery-curve-row {
+    transition: none !important;
+  }
+}
