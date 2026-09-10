@@ -1717,8 +1717,8 @@ button.door {
     radial-gradient(50% 38% at 84% 6%, rgba(240, 211, 162, 0.05), transparent 70%),
     /* 晕染：底部紫反射 */
     radial-gradient(60% 28% at 50% 106%, rgba(141, 134, 195, 0.09), transparent 75%),
-    /* 底色：蓝灰夜色（较 Things 稍提亮） */
-    linear-gradient(180deg, #1c2635 0%, #182231 46%, #141d2b 100%);
+    /* 底色：蓝灰夜色（较上一版再提亮一档） */
+    linear-gradient(180deg, #222d3f 0%, #1e2839 46%, #1a2233 100%);
   user-select: none;
   cursor: default;
   z-index: 10;
@@ -1726,9 +1726,10 @@ button.door {
   animation: gallery-bloom 1.4s cubic-bezier(0.22, 0.61, 0.21, 1) both;
 }
 
-/* —— 左侧暗区（晕染层）：序列之上、展示照片之下 ——
-   沿用晕染的多档缓降过渡：暗区在左缘，14% 后开始缓降，
-   交界线约在照片中部（~28%），48% 后完全放开。 */
+/* —— 左侧暗面（晕染层）：序列之上、展示照片之下 ——
+   一整片大致的暗面，没有任何可见轮廓线：
+   指数式超长缓降（0→90% 跨全屏），左缘约 0.25 的暗，
+   向右极缓慢消散，肉眼只能感到「左边暗、右边亮」。 */
 .gallery-dark {
   position: absolute;
   inset: 0;
@@ -1736,28 +1737,33 @@ button.door {
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(4, 8, 16, 0.24) 0%,
-    rgba(4, 8, 16, 0.24) 14%,
-    rgba(4, 8, 16, 0.17) 24%,
-    rgba(4, 8, 16, 0.1) 33%,
-    rgba(4, 8, 16, 0.04) 41%,
-    rgba(4, 8, 16, 0) 48%,
+    rgba(4, 8, 16, 0.26) 0%,
+    rgba(4, 8, 16, 0.24) 10%,
+    rgba(4, 8, 16, 0.2) 20%,
+    rgba(4, 8, 16, 0.16) 30%,
+    rgba(4, 8, 16, 0.12) 40%,
+    rgba(4, 8, 16, 0.08) 50%,
+    rgba(4, 8, 16, 0.05) 60%,
+    rgba(4, 8, 16, 0.025) 70%,
+    rgba(4, 8, 16, 0.01) 80%,
+    rgba(4, 8, 16, 0) 90%,
     rgba(4, 8, 16, 0) 100%
   );
 }
 
 /* —— 序列背景层 ——
-   弧形隐没边界：椭圆 mask 中心在左缘中点，边界在中部向右鼓出
-   （即手绘红线轮廓）。序列在边界处柔和过渡显现/隐没；
-   页面右缘由 overflow 直接切出，无过渡。 */
+   弧形隐没边界：椭圆 mask 中心在左缘中点。ry 加大（75%）让边界
+   弧度变小（各行边界更齐平）；rx 48% 让轮廓线最右端（中部鼓点）
+   左移到约半屏处。卡片从暗雾里极缓慢浮现，过渡带（次暗面）右端
+   即屏幕中心（~50%）；页面右缘由 overflow 直接切出，无过渡。 */
 .gallery-curves {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  -webkit-mask-image: radial-gradient(ellipse 52% 55% at 0% 50%, transparent 86%, #000 100%);
-  mask-image: radial-gradient(ellipse 52% 55% at 0% 50%, transparent 86%, #000 100%);
+  -webkit-mask-image: radial-gradient(ellipse 48% 75% at 0% 50%, transparent 70%, #000 100%);
+  mask-image: radial-gradient(ellipse 48% 75% at 0% 50%, transparent 70%, #000 100%);
   /* 呼吸感：极慢的透明度起伏 */
   animation: gallery-breathe 12s ease-in-out infinite;
 }
