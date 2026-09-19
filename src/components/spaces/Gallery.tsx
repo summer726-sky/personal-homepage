@@ -33,27 +33,48 @@ const REPEAT = 2;
 export function Gallery({ onBack }: { onBack: () => void }) {
   const [current, setCurrent] = useState(0);
   const lockRef = useRef(false);
+  const touchStartX = useRef<number | null>(null);
   const rowsRef = useRef<(HTMLDivElement | null)[]>([]);
   const virtualRef = useRef(0); // 目标滚动量（每切一张 ±1）
   const currentRef = useRef(0); // 缓动后的滚动量
   const photos = photoGallery;
   const N = photos.length;
 
-  // 滚轮切换照片 + 驱动背景序列滚动
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault();
+  // 切换一张照片（滚轮 / 触摸共用）
+  const switchPhoto = useCallback(
+    (dir: number) => {
       if (lockRef.current) return;
       lockRef.current = true;
-      setTimeout(() => {
-        lockRef.current = false;
-      }, 400);
-
-      const dir = e.deltaY > 0 ? 1 : -1;
+      setTimeout(() => { lockRef.current = false; }, 400);
       setCurrent((prev) => (prev + dir + N) % N);
       virtualRef.current += dir;
     },
     [N]
+  );
+
+  // 滚轮切换照片 + 驱动背景序列滚动
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      const dir = e.deltaY > 0 ? 1 : -1;
+      switchPhoto(dir);
+    },
+    [switchPhoto]
+  );
+
+  // 触摸滑动（移动端）：向左滑→下一张，向右滑→上一张
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartX.current === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX.current;
+      touchStartX.current = null;
+      if (Math.abs(dx) < 30) return;
+      switchPhoto(dx > 0 ? -1 : 1);
+    },
+    [switchPhoto]
   );
 
   // 监听绑定在 window：页面任意位置的滚轮都能捕获；
@@ -90,7 +111,11 @@ export function Gallery({ onBack }: { onBack: () => void }) {
   const currentPhoto: PhotoEntry = photos[current];
 
   return (
-    <div className="gallery-root">
+    <div
+      className="gallery-root"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       {/* 右侧四行照片序列：左缘沿弧形边界柔和隐没，右缘直接切出 */}
       <div className="gallery-curves" aria-hidden>
         {GALLERY_ROWS.map((row, li) => {

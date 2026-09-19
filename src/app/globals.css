@@ -201,11 +201,11 @@ body::after {
 
 /* —— 流体字号：随视口在限定区间内呼吸 —— */
 .intro-line {
-  font-size: clamp(1.65rem, 1.08rem + 2.1vw, 3.1rem);
+  font-size: clamp(1.35rem, 1.02rem + 1.7vw, 3.1rem);
 }
 .intro-block {
   /* 行距收紧至约 2/3 */
-  gap: clamp(1.2rem, 0.67rem + 1.75vh, 2rem);
+  gap: clamp(1rem, 0.6rem + 1.5vh, 2rem);
 }
 
 /* —— Entrance 边角晕染：三种颜色、面积参差、有方向性的线性延展 ——
@@ -1105,12 +1105,67 @@ button.door {
   }
 }
 
-/* 移动端：门改为上下、纸改为纵向错落 */
+/* 移动端：Entrance 文字不溢出、Fork 双门等比缩小、Personal 三纸可点击 */
 @media (max-width: 720px) {
+  /* Entrance：去掉负左边距，避免文字溢出左缘 */
+  .intro-block {
+    margin-left: 0 !important;
+    padding-left: 0.25rem;
+  }
+  .contact-link {
+    margin-left: 0.25rem !important;
+  }
+
+  /* Fork：双门保持并排，等比缩小不变形 */
+  .shell-fork .flex.flex-col.items-stretch {
+    flex-direction: row !important;
+    gap: 0.75rem !important;
+  }
   .door {
-    width: min(84vw, 21rem);
-    height: auto;
-    min-height: 13rem;
+    width: min(44vw, 17rem);
+    min-height: 15rem;
+    padding: 1.4rem 1.1rem;
+  }
+  .door-label {
+    font-size: 1.1rem;
+  }
+  .door-sliver {
+    font-size: 0.7rem;
+  }
+  .door-meaning {
+    font-size: 0.78rem;
+  }
+  .door-whisper {
+    font-size: 0.7rem;
+  }
+
+  /* Personal：三纸保留错落层叠构图，但缩小尺寸、减弱重叠保证可点击 */
+  .personal .sheet-float {
+    max-width: 70vw;
+  }
+  /* Things：居中偏上 */
+  .personal .sheet-float--things {
+    width: min(70vw, 13rem) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  /* Ideas：左下，与 Things 重叠一角 */
+  .personal .sheet-float--ideas {
+    width: min(60vw, 11rem) !important;
+    margin-left: 4vw !important;
+    margin-right: auto !important;
+    margin-top: -5.5rem !important;
+  }
+  /* Moments：右下，更小更远，与 Things 重叠一角 */
+  .personal .sheet-float--moments {
+    width: min(52vw, 9.5rem) !important;
+    margin-left: auto !important;
+    margin-right: 4vw !important;
+    margin-top: -6.5rem !important;
+  }
+  /* 环境碎片在手机端只保留一个，避免拥挤 */
+  .personal .EnvFragment + .EnvFragment {
+    display: none;
   }
 }
 
@@ -1692,27 +1747,28 @@ button.door {
   }
   .carousel-stage {
     height: 22rem;
-    --slide-gap: 7rem;
+    --slide-gap: 5.5rem;
     perspective: 1100px;
+    touch-action: pan-y;
   }
   .carousel-card-slot {
-    width: 12rem;
-    height: 17.5rem;
-    margin-left: -6rem;
+    width: 10.5rem;
+    height: 15.5rem;
+    margin-left: -5.25rem;
     top: 1rem;
   }
   .vynora-card {
-    padding: 1.1rem 1rem 1.2rem;
+    padding: 1rem 0.85rem 1.1rem;
   }
   .vynora-card-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   .vynora-card-category {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
   }
   .vynora-card-subtitle,
   .vynora-card-whisper {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
   }
   /* 移动端倒影更短，与缩小后的卡片比例协调 */
   .vynora-card-reflect {
@@ -1723,14 +1779,14 @@ button.door {
 /* —— 极小屏：进一步收紧，仅保证中央 + 紧邻两张可见 —— */
 @media (max-width: 420px) {
   .carousel-stage {
-    height: 19rem;
-    --slide-gap: 6rem;
+    height: 18rem;
+    --slide-gap: 4.5rem;
     perspective: 900px;
   }
   .carousel-card-slot {
-    width: 10rem;
-    height: 15rem;
-    margin-left: -5rem;
+    width: 8.5rem;
+    height: 13rem;
+    margin-left: -4.25rem;
   }
 }
 
@@ -2187,6 +2243,7 @@ button.door {
   inset: 0;
   height: 100dvh;
   overflow: hidden;
+  touch-action: pan-y;
   background:
     /* 晕染：大面积冷雾铺满亮区 */
     radial-gradient(85% 70% at 68% 42%, rgba(74, 96, 130, 0.1), transparent 80%),

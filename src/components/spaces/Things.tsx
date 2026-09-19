@@ -9,7 +9,7 @@
 // 切换氛围：端卡片不横穿舞台——在原位缓缓隐退（外漂 + 模糊 + 淡出），
 // 再从另一端缓缓显现（内漂 + 清晰 + 淡入）。类别词随切换直接更替，不加动效。
 
-import { useCallback, useState, type CSSProperties } from "react";
+import { useCallback, useRef, useState, type CSSProperties } from "react";
 import { thingsCards } from "@/data/content";
 
 const CARDS = thingsCards;
@@ -62,6 +62,8 @@ export function Things({
   onBack: () => void;
 }) {
   const [active, setActive] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchLock = useRef(false);
 
   const handleCard = useCallback(
     (i: number) => {
@@ -73,6 +75,25 @@ export function Things({
       setActive(i);
     },
     [active, onOpen]
+  );
+
+  // 手指滑动切换（移动端）：向左滑→下一张，向右滑→上一张
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartX.current === null) return;
+      const dx = e.changedTouches[0].clientX - touchStartX.current;
+      touchStartX.current = null;
+      if (Math.abs(dx) < 30) return; // 阈值，避免误触
+      if (touchLock.current) return;
+      touchLock.current = true;
+      setTimeout(() => { touchLock.current = false; }, 350);
+      const dir = dx > 0 ? -1 : 1;
+      setActive((p) => (p + dir + N) % N);
+    },
+    [N]
   );
 
   return (
@@ -106,6 +127,8 @@ export function Things({
       <div
         className="carousel-stage reveal"
         style={{ "--i": 2 } as CSSProperties}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         <div className="carousel-track">
           {CARDS.map((card, i) => {

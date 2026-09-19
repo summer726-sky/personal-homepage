@@ -8,6 +8,13 @@ export const metadata: Metadata = {
   description: "推开一扇门，进入一个属于我的空间。",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN" className="h-full antialiased">

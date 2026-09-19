@@ -91,7 +91,7 @@ export function Personal({
         <span className="haze-personal-bottom" />
       </div>
 
-      <div className="room-content shell-mid relative mx-auto w-full">
+      <div className="personal room-content shell-mid relative mx-auto w-full">
       {/* 返回上一级：小巧的细线箭头，hover 时轻微左移并亮起 */}
       <button
         type="button"
@@ -142,7 +142,7 @@ export function Personal({
 
         {/* Things · 居中偏上，压在最上层 */}
         <div
-          className="sheet-float relative z-20 mx-auto w-[min(100%,16rem)]"
+          className="sheet-float sheet-float--things relative z-20 mx-auto w-[min(100%,16rem)]"
           style={{ "--fd": "21s", "--fdelay": "-4s" } as CSSProperties}
         >
           <BackSheets id="things" />
@@ -161,7 +161,7 @@ export function Personal({
 
         {/* Ideas · 左下，一角压在 Things 后面 */}
         <div
-          className="sheet-float relative z-10 ml-[6%] -mt-12 w-[min(100%,14rem)]"
+          className="sheet-float sheet-float--ideas relative z-10 ml-[6%] -mt-12 w-[min(100%,14rem)]"
           style={{ "--fd": "17s", "--fdelay": "-11s" } as CSSProperties}
         >
           <BackSheets id="ideas" />
@@ -180,7 +180,7 @@ export function Personal({
 
         {/* Moments · 右下，更小更远一点的一张纸条 */}
         <div
-          className="sheet-float relative z-10 mr-[2%] -mt-16 ml-auto w-[min(100%,11.5rem)]"
+          className="sheet-float sheet-float--moments relative z-10 mr-[2%] -mt-16 ml-auto w-[min(100%,11.5rem)]"
           style={{ "--fd": "24s", "--fdelay": "-17s" } as CSSProperties}
         >
           <BackSheets id="moments" />
