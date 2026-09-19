@@ -9,14 +9,15 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Entrance } from "./Entrance";
 import { Fork } from "./Fork";
 import { Personal } from "./Personal";
+import { Professional } from "./Professional";
 import { Things } from "./Things";
 import { Ideas } from "./Ideas";
 import { Moments } from "./Moments";
-import { Reading } from "./Reading";
+import { ContentReader } from "./ContentReader";
 import { Contact } from "./Contact";
 import { Gallery } from "./Gallery";
 
-type SpaceId = "entrance" | "fork" | "personal" | "things" | "ideas" | "moments" | "reading" | "contact" | "gallery";
+type SpaceId = "entrance" | "fork" | "personal" | "professional" | "things" | "ideas" | "moments" | "reading" | "contact" | "gallery";
 
 const EXIT_MS = 520;
 
@@ -34,6 +35,7 @@ const THINGS_OPEN_MAP: Record<string, SpaceId> = {
 export function Experience() {
   const [space, setSpace] = useState<SpaceId>("entrance");
   const [leaving, setLeaving] = useState(false);
+  const [thingsCategory, setThingsCategory] = useState("music");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reduceRef = useRef(false);
 
@@ -61,7 +63,7 @@ export function Experience() {
     [leaving, space]
   );
 
-  const isScrollSpace = space === "ideas" || space === "moments" || space === "reading";
+  const isScrollSpace = space === "ideas" || space === "moments" || space === "reading" || space === "professional";
 
   return (
     <div
@@ -77,7 +79,11 @@ export function Experience() {
         />
       )}
       {space === "fork" && (
-        <Fork onPersonal={() => go("personal")} onBack={() => go("entrance")} />
+        <Fork
+          onPersonal={() => go("personal")}
+          onProfessional={() => go("professional")}
+          onBack={() => go("entrance")}
+        />
       )}
       {space === "personal" && (
         <Personal
@@ -89,15 +95,21 @@ export function Experience() {
       )}
       {space === "things" && (
         <Things
-          onOpen={(cat) => go(THINGS_OPEN_MAP[cat] || "reading")}
+          onOpen={(cat) => {
+            setThingsCategory(cat);
+            go(THINGS_OPEN_MAP[cat] || "reading");
+          }}
           onBack={() => go("personal")}
         />
       )}
       {space === "ideas" && <Ideas onBack={() => go("personal")} />}
       {space === "moments" && <Moments onBack={() => go("personal")} />}
-      {space === "reading" && <Reading onBack={() => go("things")} />}
+      {space === "reading" && (
+        <ContentReader category={thingsCategory} onBack={() => go("things")} />
+      )}
       {space === "contact" && <Contact onBack={() => go("entrance")} />}
       {space === "gallery" && <Gallery onBack={() => go("things")} />}
+      {space === "professional" && <Professional onBack={() => go("fork")} />}
     </div>
   );
 }

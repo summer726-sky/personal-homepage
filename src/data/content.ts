@@ -29,20 +29,18 @@ export const contact = {
 };
 
 export const fork = {
-  prompt: "或许，我是这样的我",
+  prompt: "meet me at the",
   personal: {
     label: "Personal",
     zh: "私人",
-    // 门缝里隐约透露的内部内容
     sliver: "Things · Ideas · Moments",
-    // 鼠标靠近时浮现的内心独白（用户 brief 给出的示例短句）
-    whisper: "那段时间，它总是在傍晚出现。",
+    whisper: "生活里留下来的东西。",
   },
   professional: {
     label: "Professional",
     zh: "事务",
-    sliver: "Projects · Experience",
-    whisper: "这里以后会有一些工作。",
+    sliver: "Projects · Experience · Timeline",
+    whisper: "做过的事和正在做的事。",
   },
 };
 
@@ -85,13 +83,6 @@ export type ThingsCard = {
 
 export const thingsCards: ThingsCard[] = [
   {
-    category: "music",
-    categoryLabel: "Music",
-    title: "（一首歌）",
-    subtitle: "（艺人 · 年份）",
-    whisper: "那段时间，它总是在傍晚出现。",
-  },
-  {
     category: "photography",
     categoryLabel: "Photography",
     title: "（一张照片）",
@@ -99,18 +90,11 @@ export const thingsCards: ThingsCard[] = [
     whisper: "按下快门的时候，光正好落在那。",
   },
   {
-    category: "travel",
-    categoryLabel: "Travel",
-    title: "（一段路程）",
-    subtitle: "（起点 → 终点）",
-    whisper: "那天的风是冷的。",
-  },
-  {
-    category: "reading",
-    categoryLabel: "Reading",
-    title: "（一本书）",
-    subtitle: "（作者）",
-    whisper: "读到那一页停住了。",
+    category: "music",
+    categoryLabel: "Music",
+    title: "（一首歌）",
+    subtitle: "（艺人 · 年份）",
+    whisper: "那段时间，它总是在傍晚出现。",
   },
   {
     category: "film",
@@ -132,6 +116,20 @@ export const thingsCards: ThingsCard[] = [
     title: "（一种味道）",
     subtitle: "（厨房 · 季节）",
     whisper: "那碗汤端上来，热气把脸糊住了。",
+  },
+  {
+    category: "reading",
+    categoryLabel: "Reading",
+    title: "（一本书）",
+    subtitle: "（作者）",
+    whisper: "读到那一页停住了。",
+  },
+  {
+    category: "travel",
+    categoryLabel: "Travel",
+    title: "（一段路程）",
+    subtitle: "（起点 → 终点）",
+    whisper: "那天的风是冷的。",
   },
 ];
 
@@ -262,6 +260,125 @@ export const momentsSpace = {
   ] as MomentEntry[],
 };
 
+// Professional 空间：项目与经历。
+// 清晰、直接、有结构——像一份放在桌面上的索引，
+// 而非传统简历。内容随用户填入，以下为占位骨架。
+export type ExperienceEntry = {
+  role: string;      // 职位
+  org: string;       // 组织 / 公司
+  period: string;    // 时间段
+  summary: string;   // 1-2 句概述
+};
+
+export type ProjectEntry = {
+  name: string;      // 项目名
+  role: string;      // 担任角色
+  period: string;    // 时间段
+  summary: string;   // 1-2 句描述
+  stack: string[];   // 技术栈
+  link?: string;     // 链接（可选）
+};
+
+// 职业想法时间线：从小到大依次对什么领域感兴趣、
+// 什么时候有了什么想法、完成了什么学习或正在学什么。
+export type TimelineEntry = {
+  year: string;       // 年份或年龄段
+  title: string;      // 这个阶段的标题（领域 / 想法 / 事件）
+  detail: string;     // 1-2 句描述
+  kind: "interest" | "idea" | "learning" | "milestone";
+  // interest: 对某领域产生兴趣
+  // idea: 有了产品或职业规划的想法
+  // learning: 完成了某段学习或正在学
+  // milestone: 某个阶段性节点
+};
+
+export const professionalSpace = {
+  ambient: "这里有一些做过的事。",
+  experiences: [
+    {
+      role: "（职位）",
+      org: "（公司 / 组织）",
+      period: "2025 — 至今",
+      summary: "（一两句话描述这段经历中做的事。）",
+    },
+    {
+      role: "（职位）",
+      org: "（公司 / 组织）",
+      period: "2023 — 2025",
+      summary: "（一两句话描述这段经历中做的事。）",
+    },
+    {
+      role: "（职位）",
+      org: "（公司 / 组织）",
+      period: "2021 — 2023",
+      summary: "（一两句话描述这段经历中做的事。）",
+    },
+  ] as ExperienceEntry[],
+  projects: [
+    {
+      name: "（项目名）",
+      role: "（角色）",
+      period: "2025",
+      summary: "（一两句话描述这个项目。）",
+      stack: ["React", "Next.js", "TypeScript"],
+      link: undefined as string | undefined,
+    },
+    {
+      name: "（项目名）",
+      role: "（角色）",
+      period: "2024",
+      summary: "（一两句话描述这个项目。）",
+      stack: ["Node.js", "PostgreSQL"],
+      link: undefined as string | undefined,
+    },
+    {
+      name: "（项目名）",
+      role: "（角色）",
+      period: "2023",
+      summary: "（一两句话描述这个项目。）",
+      stack: ["React", "Tailwind CSS"],
+      link: undefined as string | undefined,
+    },
+  ] as ProjectEntry[],
+  skills: [
+    "React", "Next.js", "TypeScript", "JavaScript",
+    "HTML", "CSS", "Tailwind", "Node.js",
+    "PostgreSQL", "Git",
+  ],
+  timeline: [
+    {
+      year: "小时候",
+      title: "（对什么领域产生了兴趣）",
+      detail: "（一两句话描述当时的兴趣和契机。）",
+      kind: "interest" as const,
+    },
+    {
+      year: "2015",
+      title: "（一个想法的萌芽）",
+      detail: "（什么时候有了一个产品或职业规划的想法。）",
+      kind: "idea" as const,
+    },
+    {
+      year: "2018",
+      title: "（完成了一段学习）",
+      detail: "（学完了什么、达到了什么程度。）",
+      kind: "learning" as const,
+    },
+    {
+      year: "2020",
+      title: "（一个阶段性节点）",
+      detail: "（做成了什么、转折点是什么。）",
+      kind: "milestone" as const,
+    },
+    {
+      year: "2023",
+      title: "（正在学习的东西）",
+      detail: "（现在在学什么、目标是什么。）",
+      kind: "learning" as const,
+    },
+  ] as TimelineEntry[],
+};
+
 // 极简阅读状态。安静，用户控制节奏。
 export const reading = {
   songTitle: "（歌名）",
@@ -271,3 +388,143 @@ export const reading = {
   body:
     "（在这里写一段你和这首歌有关的真实记忆。不需要写成正式文章，几句就够。）",
 };
+
+// —— Things 各类别的内容空间 ——
+// 每个类别有独立的数据结构与布局，共享阅读壳（返回、reveal、serif）。
+// 以下全部为占位骨架，真实内容随用户填入。
+
+// Music：三首歌的记忆，左右交错排列。
+export const musicContent = [
+  {
+    title: "（歌名一）",
+    artist: "（艺人）",
+    date: "2026",
+    body:
+      "（在这里写一段你和这首歌有关的真实记忆。几句就够。）",
+  },
+  {
+    title: "（歌名二）",
+    artist: "（艺人）",
+    date: "2025",
+    body:
+      "（在这里写一段你和这首歌有关的真实记忆。几句就够。）",
+  },
+  {
+    title: "（歌名三）",
+    artist: "（艺人）",
+    date: "2024",
+    body:
+      "（在这里写一段你和这首歌有关的真实记忆。几句就够。）",
+  },
+];
+
+// Travel：对各个地方的印象手记（卡片式）。
+export const travelContent = [
+  { place: "（地名一）", impression: "（在这里写对这个地方的印象手记。几句就够。）" },
+  { place: "（地名二）", impression: "（在这里写对这个地方的印象手记。几句就够。）" },
+  { place: "（地名三）", impression: "（在这里写对这个地方的印象手记。几句就够。）" },
+  { place: "（地名四）", impression: "（在这里写对这个地方的印象手记。几句就够。）" },
+];
+
+// Reading：阅读笔记，多篇。
+export const readingContent = [
+  {
+    title: "（书名一）",
+    author: "（作者）",
+    date: "2026",
+    excerpt: "（在这里放一句书中的摘抄。让你停下来想了想的那一句。）",
+    notes:
+      "（在这里写你的阅读笔记。可以是对摘抄的回应，也可以是整本书留下的感觉。）",
+  },
+  {
+    title: "（书名二）",
+    author: "（作者）",
+    date: "2025",
+    excerpt: "（在这里放一句书中的摘抄。让你停下来想了想的那一句。）",
+    notes:
+      "（在这里写你的阅读笔记。可以是对摘抄的回应，也可以是整本书留下的感觉。）",
+  },
+  {
+    title: "（书名三）",
+    author: "（作者）",
+    date: "2024",
+    excerpt: "（在这里放一句书中的摘抄。让你停下来想了想的那一句。）",
+    notes:
+      "（在这里写你的阅读笔记。可以是对摘抄的回应，也可以是整本书留下的感觉。）",
+  },
+];
+
+// Film：一部电影的一个场景，多篇。
+export const filmContent = [
+  {
+    title: "（片名一）",
+    director: "（导演）",
+    year: "2026",
+    scene:
+      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
+  },
+  {
+    title: "（片名二）",
+    director: "（导演）",
+    year: "2025",
+    scene:
+      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
+  },
+  {
+    title: "（片名三）",
+    director: "（导演）",
+    year: "2024",
+    scene:
+      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
+  },
+];
+
+// Object：多件物件的来历，左右切换浏览。
+export const objectContent = [
+  {
+    name: "（物件名一）",
+    origin: "（来源）",
+    story:
+      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
+  },
+  {
+    name: "（物件名二）",
+    origin: "（来源）",
+    story:
+      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
+  },
+  {
+    name: "（物件名三）",
+    origin: "（来源）",
+    story:
+      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
+  },
+];
+
+// Food：味道的记忆，多篇。
+export const foodContent = [
+  {
+    name: "（菜名 / 味道一）",
+    kitchen: "（厨房）",
+    season: "（季节）",
+    memory:
+      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
+    ingredients: ["（食材）", "（食材）", "（食材）"],
+  },
+  {
+    name: "（菜名 / 味道二）",
+    kitchen: "（厨房）",
+    season: "（季节）",
+    memory:
+      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
+    ingredients: ["（食材）", "（食材）", "（食材）"],
+  },
+  {
+    name: "（菜名 / 味道三）",
+    kitchen: "（厨房）",
+    season: "（季节）",
+    memory:
+      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
+    ingredients: ["（食材）", "（食材）", "（食材）"],
+  },
+];
