@@ -339,10 +339,128 @@ body::after {
 }
 
 .fork-prompt {
+  position: relative;
+  z-index: 1;
   font-size: clamp(1.3rem, 1rem + 0.9vw, 1.8rem);
+}
+
+/* ============================================================
+   Fork · "meet me at the" 周围的呼吸光点
+   光点主要聚集在文案的上方与左右，向外渐疏、疏密有致；
+   以冷白蓝为主色（夜色微尘），偶有几点暖白（远处的灯）。
+   运动极轻：透明度 + 缩放呼吸，伴随 1–2px 上浮——
+   「空间回应，而非表演」，不做位移、不闪烁刺眼。
+   ============================================================ */
+.fork-prompt-field {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  /* 纯装饰容器（光点 + 文案），全宽盒模型不得拦截左上角返回键的点击 */
+  pointer-events: none;
+}
+.fork-sparks {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(920px, 94vw);
+  height: clamp(230px, 40vh, 370px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: sparks-fade 1.8s ease 0.45s both;
+}
+.fork-spark {
+  position: absolute;
+  border-radius: 9999px;
+  background: #dce8fa;
+  box-shadow:
+    0 0 5px 1px rgba(205, 224, 250, 0.55),
+    0 0 12px 3px rgba(160, 190, 235, 0.18);
+  opacity: 0;
+  transform: scale(0.6);
+  animation: spark-breathe var(--d, 5s) ease-in-out infinite;
+  animation-delay: var(--del, 0s);
+  will-change: opacity, transform;
+}
+/* 少量暖白：像远处窗里的灯，只作点缀 */
+.fork-spark--warm {
+  background: #f4e2b8;
+  box-shadow:
+    0 0 5px 1px rgba(244, 222, 176, 0.5),
+    0 0 12px 3px rgba(232, 200, 140, 0.16);
+}
+
+/* —— 模糊的大光点（散景）：锐利小光点之下的氛围底光 ——
+   径向渐变 + blur，无硬边；呼吸比小光点更慢、幅度更柔。
+   --gs 为整体缩放系数（手机端调小，见媒体查询）。 */
+.fork-glow {
+  position: absolute;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(196, 214, 244, calc(var(--o, 0.12) * 1.5)) 0%,
+    rgba(168, 192, 230, var(--o, 0.12)) 38%,
+    rgba(140, 168, 214, calc(var(--o, 0.12) * 0.35)) 62%,
+    transparent 72%
+  );
+  filter: blur(7px);
+  opacity: 0;
+  transform: scale(0.85);
+  animation: glow-breathe var(--d, 8s) ease-in-out infinite;
+  animation-delay: var(--del, 0s);
+  will-change: opacity, transform;
+}
+.fork-glow--warm {
+  background: radial-gradient(
+    circle,
+    rgba(240, 220, 172, calc(var(--o, 0.12) * 1.5)) 0%,
+    rgba(230, 202, 150, var(--o, 0.12)) 40%,
+    rgba(214, 182, 128, calc(var(--o, 0.12) * 0.3)) 64%,
+    transparent 74%
+  );
+}
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--o, 0.12) * 0.3);
+    transform: translate3d(0, 0, 0) scale(calc(var(--gs, 1) * 0.85));
+  }
+  50% {
+    opacity: var(--o, 0.12);
+    transform: translate3d(var(--dx, 0px), var(--dy, -2px), 0)
+      scale(calc(var(--gs, 1) * 1.08));
+  }
+}
+@keyframes spark-breathe {
+  0%,
+  100% {
+    opacity: calc(var(--o, 0.7) * 0.22);
+    transform: translate3d(0, 0, 0) scale(0.6);
+  }
+  50% {
+    opacity: var(--o, 0.7);
+    transform: translate3d(var(--dx, 0px), var(--dy, -1px), 0) scale(1);
+  }
+}
+@keyframes sparks-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .things-category {
   font-size: clamp(1.5rem, 1.15rem + 1vw, 2.1rem);
+}
+
+/* 手机端专属：落在页面底部原提示位的分类名、底部流动晕染（桌面隐藏） */
+.things-category--bottom {
+  display: none;
+}
+.things-haze {
+  display: none;
 }
 
 /* 入场：逐行 reveal，有轻微时间差与 blur→clear */
@@ -1103,6 +1221,27 @@ button.door {
   .air-speck {
     display: none;
   }
+  .fork-sparks {
+    animation: none;
+    opacity: 1;
+  }
+  .fork-spark {
+    animation: none;
+    opacity: calc(var(--o, 0.7) * 0.45);
+    transform: none;
+  }
+  .fork-glow {
+    animation: none;
+    opacity: calc(var(--o, 0.12) * 0.55);
+    transform: none;
+  }
+  .things-haze,
+  .things-haze__blob {
+    animation: none;
+  }
+  .things-haze {
+    opacity: 0.9;
+  }
 }
 
 /* 移动端：Entrance 文字不溢出、Fork 双门等比缩小、Personal 三纸可点击 */
@@ -1120,6 +1259,10 @@ button.door {
   .shell-fork .flex.flex-col.items-stretch {
     flex-direction: row !important;
     gap: 0.75rem !important;
+  }
+  /* 大光点在窄屏收小一档，避免晕染压到两肩外侧 */
+  .fork-glow {
+    --gs: 0.68;
   }
   .door {
     width: min(44vw, 17rem);
@@ -1143,25 +1286,35 @@ button.door {
   .personal .sheet-float {
     max-width: 70vw;
   }
-  /* Things：居中偏上 */
+  /* 返回键与氛围文案整体上提收紧，为下方三纸让出空间与间隔 */
+  .personal > .space-back {
+    margin-top: -1.5rem;
+  }
+  .personal > p {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1.35rem !important;
+  }
+
+  /* Things：居中偏上，手机端缩短一档；不再使用负边距，避免压住氛围文案 */
   .personal .sheet-float--things {
-    width: min(70vw, 13rem) !important;
+    width: min(60vw, 11rem) !important;
     margin-left: auto !important;
     margin-right: auto !important;
+    margin-top: 0 !important;
   }
-  /* Ideas：左下，与 Things 重叠一角 */
+  /* Ideas：左下，与 Things 只在角落轻叠，标题与说明完整可见 */
   .personal .sheet-float--ideas {
-    width: min(60vw, 11rem) !important;
+    width: min(58vw, 10.5rem) !important;
     margin-left: 4vw !important;
     margin-right: auto !important;
-    margin-top: -5.5rem !important;
+    margin-top: -1.25rem !important;
   }
-  /* Moments：右下，更小更远，与 Things 重叠一角 */
+  /* Moments：右下，更小更远，与 Things 只在角落轻叠 */
   .personal .sheet-float--moments {
-    width: min(52vw, 9.5rem) !important;
+    width: min(50vw, 9rem) !important;
     margin-left: auto !important;
     margin-right: 4vw !important;
-    margin-top: -6.5rem !important;
+    margin-top: -1.75rem !important;
   }
   /* 环境碎片在手机端只保留一个，避免拥挤 */
   .personal .EnvFragment + .EnvFragment {
@@ -1618,8 +1771,6 @@ button.door {
    底部 whisper 吸底。 */
 .vynora-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 1.6rem 1.4rem 1.7rem;
@@ -1659,6 +1810,25 @@ button.door {
 }
 .carousel-card-slot[data-active="false"] .vynora-card {
   cursor: pointer; /* 侧卡片也可点击，将其移到中央 */
+}
+
+/* 卡片内容层：桌面纵向排列；手机端反向旋转让文字正立，横向排列 */
+.vynora-card-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+/* 头部：分类 + 标题（桌面纵向；手机端横向） */
+.vynora-card-head {
+  display: flex;
+  flex-direction: column;
+}
+/* 底部：副标题 + 氛围碎片。flex:1 撑满剩余高度，让 whisper 落到底部 */
+.vynora-card-foot {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 /* 卡片内容：分类标 / 标题 / 副标题 / 氛围碎片 */
@@ -1740,39 +1910,227 @@ button.door {
   opacity: 0.8;
 }
 
-/* —— 移动端：缩小卡片、收紧横向间距、限制可见张数 —— */
+/* —— 移动端：卡片适度放大以承载文字，下部恢复修饰性短句 —— */
 @media (max-width: 720px) {
   .things-stage {
     padding: 1rem 0.5rem 3rem;
   }
   .carousel-stage {
     height: 22rem;
-    --slide-gap: 5.5rem;
+    --slide-gap: 6rem;
     perspective: 1100px;
     touch-action: pan-y;
   }
   .carousel-card-slot {
-    width: 10.5rem;
-    height: 15.5rem;
-    margin-left: -5.25rem;
+    width: 11rem;
+    height: 16.5rem;
+    margin-left: -5.5rem;
     top: 1rem;
   }
-  .vynora-card {
-    padding: 1rem 0.85rem 1.1rem;
+  /* 手机端：纵向轮播——卡片垂直居中，translateY 控制上下位移 */
+  .things-stage .carousel-card-slot {
+    top: 50%;
+    margin-top: -8.25rem; /* 半高 */
   }
-  .vynora-card-title {
-    font-size: 1.1rem;
+  .vynora-card {
+    padding: 0.9rem 0.85rem 1rem;
+  }
+  /* 手机端：卡体 rotate(-90°) 后视觉宽=槽位高、高=槽位宽。
+     内容层尺寸必须互换并绝对居中，再反向旋转 90°，
+     文字才会落在旋转后的卡片内（否则内容溢出视觉卡上下缘）。 */
+  .vynora-card-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* 视觉内容区：槽高 16.5 减纵向 padding 1.9；槽宽 11 减横向 padding 1.7 */
+    width: 14.6rem;
+    height: 9.3rem;
+    transform: translate(-50%, -50%) rotate(90deg);
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  /* 头部：分类在左、标题在右，单行不换行 */
+  .vynora-card-head {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+    white-space: nowrap;
   }
   .vynora-card-category {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+  }
+  .vynora-card-title {
+    font-size: 0.95rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* 底部：副标题 + 氛围短句，字号小、靠右、不挤压主视觉 */
+  .vynora-card-foot {
+    flex: 0 0 auto;
+    align-items: flex-end;
+    gap: 0.15rem;
+    margin-top: 0.4rem;
   }
   .vynora-card-subtitle,
   .vynora-card-whisper {
-    font-size: 0.7rem;
+    display: block;
+    margin-top: 0;
+    font-size: 0.68rem;
+    line-height: 1.4;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
-  /* 移动端倒影更短，与缩小后的卡片比例协调 */
+  .vynora-card-whisper {
+    font-style: italic;
+    opacity: 0.75;
+  }
+  /* 移动端倒影更短，与放大后的卡片比例协调 */
   .vynora-card-reflect {
     height: 42%;
+  }
+
+  /* 顶部分类大标题与操作提示在手机端让位给底部标题 */
+  .things-category {
+    display: none;
+  }
+  .things-hint {
+    display: none;
+  }
+  /* 分类名落到底部原提示位 */
+  .things-category--bottom {
+    display: block;
+    position: relative;
+    z-index: 2;
+    font-size: 0.92rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  /* 底部颜色晕染层：贴页面下缘，约占六成屏高，卡片在其上方。
+     配色取自首页：冷蓝灰（左）、暖光（右下）、紫反射（底中）。 */
+  .things-haze {
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    filter: blur(18px) saturate(0.82);
+    transform: translateZ(0);
+    /* 搅动幅度与方向（data-dir 跟随卡片来去） */
+    --sd: 15px;
+    --sr: 2.4deg;
+    will-change: transform;
+  }
+  .things-haze[data-dir="-1"] {
+    --sd: -15px;
+    --sr: -2.4deg;
+  }
+  .things-haze__blob {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+  /* 冷蓝灰：沿左侧铺开，像首页 haze-a 的回声 */
+  .things-haze__blob--cool {
+    left: -16%;
+    bottom: -6%;
+    width: 92%;
+    height: 86%;
+    background: radial-gradient(
+      circle at 42% 44%,
+      rgba(58, 84, 124, 0.62) 0%,
+      rgba(42, 64, 100, 0.36) 44%,
+      rgba(32, 50, 82, 0.15) 64%,
+      transparent 76%
+    );
+    animation:
+      haze-enter 1.8s ease 0.3s both,
+      haze-drift-a 27s ease-in-out -6s infinite alternate;
+  }
+  /* 暖光：右下角一团光滑的暖，呼应首页右上暖光在镜面地板的回弹 */
+  .things-haze__blob--warm {
+    right: -18%;
+    bottom: -12%;
+    width: 78%;
+    height: 76%;
+    background: radial-gradient(
+      circle at 52% 46%,
+      rgba(238, 202, 166, 0.26) 0%,
+      rgba(228, 190, 154, 0.14) 42%,
+      rgba(214, 178, 140, 0.05) 64%,
+      transparent 78%
+    );
+    animation:
+      haze-enter 1.8s ease 0.3s both,
+      haze-drift-b 34s ease-in-out -15s infinite alternate;
+  }
+  /* 紫反射：底缘中部一缕，蓝调暮光 */
+  .things-haze__blob--violet {
+    left: 14%;
+    bottom: -16%;
+    width: 74%;
+    height: 64%;
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(158, 140, 202, 0.28) 0%,
+      rgba(132, 122, 188, 0.13) 46%,
+      rgba(110, 102, 166, 0.04) 68%,
+      transparent 80%
+    );
+    animation:
+      haze-enter 1.8s ease 0.3s both,
+      haze-drift-c 23s ease-in-out -3s infinite alternate;
+  }
+  /* 入场：三团各自淡入（opacity 与 transform 分属两个动画，互不干扰）。
+     挂在色斑上而非整层，避免搅动 class 移除时重新触发入场造成闪退 */
+  @keyframes haze-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* 静止时的自然缓流：三团各走各的慢轨迹，像水在呼吸 */
+  @keyframes haze-drift-a {
+    from { transform: translate3d(-3%, 3%, 0) scale(1); }
+    to { transform: translate3d(6%, -4%, 0) scale(1.12); }
+  }
+  @keyframes haze-drift-b {
+    from { transform: translate3d(4%, 2%, 0) scale(1.08); }
+    to { transform: translate3d(-5%, -3%, 0) scale(0.96); }
+  }
+  @keyframes haze-drift-c {
+    from { transform: translate3d(-2%, -2%, 0) scale(0.95); }
+    to { transform: translate3d(3%, 4%, 0) scale(1.1); }
+  }
+  /* 翻动卡片：整层被带动倾斜、轻荡两下后回正——
+     一次性、方向跟随卡片。只动 transform，不碰 filter/亮度，
+     首尾帧与静止态完全一致，动画结束无任何跳变闪烁 */
+  .things-haze.is-stirred {
+    animation: haze-stir 2s cubic-bezier(0.22, 0.61, 0.3, 1) 1;
+  }
+  @keyframes haze-stir {
+    0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+    18% {
+      transform: translate3d(0, calc(var(--sd) * -1.15), 0) rotate(calc(var(--sr) * -1)) scale(1.035);
+    }
+    42% {
+      transform: translate3d(0, calc(var(--sd) * 0.55), 0) rotate(calc(var(--sr) * 0.42)) scale(0.99);
+    }
+    68% {
+      transform: translate3d(0, calc(var(--sd) * -0.2), 0) rotate(calc(var(--sr) * -0.16)) scale(1.012);
+    }
+    100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
   }
 }
 
@@ -1787,6 +2145,15 @@ button.door {
     width: 8.5rem;
     height: 13rem;
     margin-left: -4.25rem;
+  }
+  .things-stage .carousel-card-slot {
+    top: 50%;
+    margin-top: -6.5rem; /* 半高 */
+  }
+  /* 极小屏内容区同步互换：槽高 13 减 1.9；槽宽 8.5 减 1.7 */
+  .vynora-card-inner {
+    width: 11.1rem;
+    height: 6.8rem;
   }
 }
 
@@ -2275,6 +2642,7 @@ button.door {
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  /* 桌面端：左侧暗 → 右侧亮 */
   background: linear-gradient(
     90deg,
     rgba(4, 8, 16, 0.26) 0%,
@@ -2302,6 +2670,7 @@ button.door {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  /* 桌面端：左缘弧形渐隐 */
   -webkit-mask-image: radial-gradient(ellipse 48% 75% at 0% 50%, transparent 70%, #000 100%);
   mask-image: radial-gradient(ellipse 48% 75% at 0% 50%, transparent 70%, #000 100%);
   /* 呼吸感：极慢的透明度起伏 */
@@ -2422,7 +2791,7 @@ button.door {
   opacity: 0.7;
 }
 
-/* —— 滚轮提示：极淡、放在底栏左侧 —— */
+/* —— 滚轮提示：极淡、放在底栏上方右侧 —— */
 .gallery-hint {
   position: absolute;
   bottom: clamp(2.4rem, 5vh, 3.3rem);
@@ -2435,12 +2804,85 @@ button.door {
   pointer-events: none;
 }
 
-/* —— 移动端适配 —— */
+/* —— 移动端适配：纵向布局 —— */
 @media (max-width: 720px) {
+  /* 暗面：只压在页面最下部、展示照片的背后——底部最暗，
+     过渡带在照片高度范围内（照片中线附近明显转亮），
+     照片上方的序列区保持明亮，暗部不上爬 */
+  .gallery-dark {
+    background: linear-gradient(
+      0deg,
+      rgba(4, 8, 16, 0.6) 0%,
+      rgba(4, 8, 16, 0.52) 13%,
+      rgba(4, 8, 16, 0.4) 24%,
+      rgba(4, 8, 16, 0.24) 35%,
+      rgba(4, 8, 16, 0.1) 46%,
+      rgba(4, 8, 16, 0.03) 55%,
+      rgba(4, 8, 16, 0) 64%
+    );
+  }
+
+  /* 序列：改为底部中央挖洞——缩略图铺满上部保持明亮，
+     洞内露出深色底 + gallery-dark 渐变，构成照片背后的下部阴影区 */
+  .gallery-curves {
+    -webkit-mask-image: radial-gradient(ellipse 92% 54% at 50% 102%, transparent 50%, #000 88%);
+    mask-image: radial-gradient(ellipse 92% 54% at 50% 102%, transparent 50%, #000 88%);
+  }
+
+  /* 序列改为纵向列 */
+  .gallery-curve-row {
+    top: 0;
+    left: auto;
+    flex-direction: column;
+    align-items: center;
+    white-space: normal;
+  }
+
+  /* 前景：为右侧栏留空 */
+  .gallery-foreground {
+    padding-right: calc(clamp(2.2rem, 4.5vh, 3rem) + clamp(1.5rem, 4vw, 3rem));
+  }
+
+  /* 照片落在页面下部：照片中线压在阴影过渡带上，配文在照片下方 */
   .gallery-main {
     padding-left: 0;
     justify-content: center;
+    align-items: flex-end;
+    padding-bottom: clamp(0.75rem, 2.5vh, 1.75rem);
   }
+
+  /* 展示照片整体向左移一点，别压在页面中轴的陈列列上 */
+  .gallery-photo-block {
+    transform: translateX(clamp(-3rem, -6vw, -1.25rem));
+  }
+
+  /* 底栏 → 右侧竖栏 */
+  .gallery-bottom-bar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: clamp(2.2rem, 4.5vh, 3rem);
+    height: auto;
+    justify-content: center;
+    padding: 0;
+    border-top: none;
+    border-left: 1px solid rgba(100, 120, 150, 0.08);
+    margin: 0;
+  }
+  .gallery-bottom-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* 提示文字：右侧竖排 */
+  .gallery-hint {
+    right: clamp(2.6rem, 5vh, 3.5rem);
+    bottom: clamp(1.5rem, 4vw, 3rem);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
   .gallery-photo--landscape {
     width: clamp(220px, 70vw, 300px);
     height: clamp(150px, 47vw, 200px);

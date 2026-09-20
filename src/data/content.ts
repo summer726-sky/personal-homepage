@@ -194,14 +194,14 @@ export type PhotoEntry = {
 };
 
 export const photoGallery: PhotoEntry[] = [
-  ...Array.from({ length: 20 }, (_, i) => ({
+  ...Array.from({ length: 10 }, (_, i) => ({
     id: `p${i + 1}`,
     caption: "（这里放一张照片）",
     hint: "（地点 · 季节）",
     orientation: "landscape" as const,
   })),
-  ...Array.from({ length: 20 }, (_, i) => ({
-    id: `p${i + 21}`,
+  ...Array.from({ length: 10 }, (_, i) => ({
+    id: `p${i + 11}`,
     caption: "（这里放一张照片）",
     hint: "（地点 · 季节）",
     orientation: "portrait" as const,
