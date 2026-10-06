@@ -26,6 +26,20 @@ export const contact = {
     { label: "微信", value: "（你的微信号）", href: null as string | null },
     { label: "GitHub", value: "github.com/your-name", href: profile.github },
   ],
+  // 留言反馈：提交后存入 Supabase feedback 表，可在 Supabase 后台查看
+  feedback: {
+    title: "留言",
+    note: "想说的话可以留在这里。",
+    contactLabel: "称呼 / 联系方式（选填）",
+    contactPlaceholder: "怎么称呼你",
+    messagePlaceholder: "写点什么…",
+    sendLabel: "寄出",
+    sendingLabel: "正在寄出…",
+    success: "收到了，谢谢你的留言。",
+    error: "没有寄出去，稍后再试一次吧。",
+    notConfigured: "（留言通道还没接上，稍后再来看看。）",
+    againLabel: "再写一条",
+  },
 };
 
 export const fork = {
@@ -97,25 +111,11 @@ export const thingsCards: ThingsCard[] = [
     whisper: "那段时间，它总是在傍晚出现。",
   },
   {
-    category: "film",
-    categoryLabel: "Film",
-    title: "（一部电影）",
-    subtitle: "（导演 · 年份）",
-    whisper: "结尾那个长镜头。",
-  },
-  {
-    category: "object",
-    categoryLabel: "Object",
-    title: "（一件物件）",
-    subtitle: "（来源）",
-    whisper: "一直没舍得扔。",
-  },
-  {
-    category: "food",
-    categoryLabel: "Food",
-    title: "（一种味道）",
-    subtitle: "（厨房 · 季节）",
-    whisper: "那碗汤端上来，热气把脸糊住了。",
+    category: "hobby",
+    categoryLabel: "Hobby",
+    title: "（一些爱好）",
+    subtitle: "（喜欢做的事）",
+    whisper: "闲下来的时候，就去做这些。",
   },
   {
     category: "reading",
@@ -454,77 +454,64 @@ export const readingContent = [
   },
 ];
 
-// Film：一部电影的一个场景，多篇。
-export const filmContent = [
-  {
-    title: "（片名一）",
-    director: "（导演）",
-    year: "2026",
-    scene:
-      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
-  },
-  {
-    title: "（片名二）",
-    director: "（导演）",
-    year: "2025",
-    scene:
-      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
-  },
-  {
-    title: "（片名三）",
-    director: "（导演）",
-    year: "2024",
-    scene:
-      "（在这里写让你记住的那个场景。不需要复述情节，写下那个画面和你的感觉就够。）",
-  },
-];
+// —— 数字分身 · 对话窗口原型 ————————————————————————————————————
+// 本阶段：纯前端占位——不接 AI API、不做后端、不做存储。
+// 消息只存在于组件状态里；访客发送后，分身以轮换占位语回应，
+// 示意「真正的对话尚未接入」。后续接入数字分身数据后，
+// 只需替换 pendingReplies 为真实对话逻辑，UI 不动。
+export const avatarChat = {
+  // ① 介绍框里的问候
+  intro: "hi，我是summer的数字分身",
+  // ② 聊天框里的第一条消息
+  greeting: "随便说说或者问点啥~",
+  // 输入框占位
+  inputPlaceholder: "说点什么…",
+  sendLabel: "发送",
+  // 建议泡泡
+  suggestions: [
+    "平时喜欢干什么",
+    "喜欢听什么歌",
+  ],
+  // 占位回复：访客每发一句，按顺序轮换其中一条
+  pendingReplies: [
+    "（这句话我先记在纸上了。等我学会说话，第一个回答你。）",
+    "（现在还答不上来——不过我已经听到了。）",
+    "（嗯。这张纸上的字，又多了一行。）",
+  ],
+};
 
-// Object：多件物件的来历，左右切换浏览。
-export const objectContent = [
-  {
-    name: "（物件名一）",
-    origin: "（来源）",
-    story:
-      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
-  },
-  {
-    name: "（物件名二）",
-    origin: "（来源）",
-    story:
-      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
-  },
-  {
-    name: "（物件名三）",
-    origin: "（来源）",
-    story:
-      "（在这里写这件物件的故事。怎么来的、为什么留着、它让你想到什么。）",
-  },
-];
+// Hobby：爱好，内部样式参考 Professional（索引 + 分区）。
+// 四项：美术、摄影、运动、音乐。每项有标题、一句说明、相关标签。
+export type HobbyEntry = {
+  name: string;        // 爱好名
+  detail: string;      // 1-2 句说明
+  tags: string[];      // 相关关键词/标签
+};
 
-// Food：味道的记忆，多篇。
-export const foodContent = [
+export const hobbyContent: HobbyEntry[] = [
   {
-    name: "（菜名 / 味道一）",
-    kitchen: "（厨房）",
-    season: "（季节）",
-    memory:
-      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
-    ingredients: ["（食材）", "（食材）", "（食材）"],
+    name: "美术",
+    detail: "（在这里写和美术有关的事。画了什么、喜欢什么风格、什么时候开始的。）",
+    tags: ["（画种）", "（风格）", "（工具）"],
   },
   {
-    name: "（菜名 / 味道二）",
-    kitchen: "（厨房）",
-    season: "（季节）",
-    memory:
-      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
-    ingredients: ["（食材）", "（食材）", "（食材）"],
+    name: "摄影",
+    detail: "（在这里写和摄影有关的事。拍什么、用什么、喜欢什么样的光。）",
+    tags: ["（题材）", "（器材）", "（地点）"],
   },
   {
-    name: "（菜名 / 味道三）",
-    kitchen: "（厨房）",
-    season: "（季节）",
-    memory:
-      "（在这里写这种味道带给你的记忆。不需要写成食评，写下那个情境就够。）",
-    ingredients: ["（食材）", "（食材）", "（食材）"],
+    name: "运动",
+    detail: "（在这里写和运动有关的事。做什么运动、频率、为什么喜欢。）",
+    tags: ["（项目）", "（频率）", "（场所）"],
+  },
+  {
+    name: "音乐",
+    detail: "（在这里写和音乐有关的事。听什么、玩什么、音乐在生活里是什么角色。）",
+    tags: ["（风格）", "（乐器）", "（场合）"],
+  },
+  {
+    name: "写作",
+    detail: "（在这里写和写作有关的事。写什么、什么时候写、写作在生活里是什么角色。）",
+    tags: ["（体裁）", "（工具）", "（场合）"],
   },
 ];

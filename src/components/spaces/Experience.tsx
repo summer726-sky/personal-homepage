@@ -27,9 +27,7 @@ const THINGS_OPEN_MAP: Record<string, SpaceId> = {
   music: "reading",
   travel: "reading",
   reading: "reading",
-  film: "reading",
-  object: "reading",
-  food: "reading",
+  hobby: "reading",
 };
 
 export function Experience() {
@@ -63,7 +61,12 @@ export function Experience() {
     [leaving, space]
   );
 
-  const isScrollSpace = space === "ideas" || space === "moments" || space === "reading" || space === "professional";
+  const isScrollSpace =
+    space === "ideas" ||
+    space === "moments" ||
+    space === "reading" ||
+    space === "professional" ||
+    space === "contact";
 
   return (
     <div

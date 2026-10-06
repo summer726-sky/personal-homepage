@@ -4,9 +4,13 @@
 // 形态：房间里的一行行索引——左侧类别、右侧地址，中间一条极淡的
 // 虚线导引（像书的目录、或楼下信箱的名录）。没有框、没有纸，
 // 文字直接落在墙上。hover 时整行轻轻亮起，地址微微向前（右）。
+// 名录之后是「留言」反馈框（写入 Supabase），末尾是「数字分身」：
+// 一道分割线后，三框对话直接呈现（无二级入口）。
 
 import type { CSSProperties } from "react";
 import { contact } from "@/data/content";
+import { AvatarChat } from "./AvatarChat";
+import { Feedback } from "./Feedback";
 
 export function Contact({ onBack }: { onBack: () => void }) {
   return (
@@ -66,6 +70,19 @@ export function Contact({ onBack }: { onBack: () => void }) {
             );
           })}
         </div>
+
+        {/* 留言反馈：名录之后，Supabase 存储 */}
+        <div className="mt-14">
+          <Feedback startIndex={2 + contact.entries.length} />
+        </div>
+
+        {/* 数字分身：反馈下方一道分割线，三框对话直接呈现 */}
+        <div
+          className="avchat-divider reveal"
+          style={{ "--i": 4 + contact.entries.length } as CSSProperties}
+          aria-hidden
+        />
+        <AvatarChat />
       </div>
     </>
   );

@@ -4,14 +4,12 @@
 // 共享壳：返回、reveal 逐行入场、serif + ember。
 // 按类别切换布局——每个类别有独有视觉元素，不完全同质化。
 
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import {
   musicContent,
   travelContent,
   readingContent,
-  filmContent,
-  objectContent,
-  foodContent,
+  hobbyContent,
 } from "@/data/content";
 
 // reveal 索引计数器
@@ -41,9 +39,7 @@ export function ContentReader({
       {category === "music" && <MusicLayout />}
       {category === "travel" && <TravelLayout />}
       {category === "reading" && <ReadingLayout />}
-      {category === "film" && <FilmLayout />}
-      {category === "object" && <ObjectLayout />}
-      {category === "food" && <FoodLayout />}
+      {category === "hobby" && <HobbyLayout />}
     </article>
   );
 }
@@ -86,11 +82,47 @@ function MusicLayout() {
   );
 }
 
-// —— Travel：Moments 式明信片卡片，每张是一个地方的印象手记 ——
+// —— Travel：Moments 式明信片卡片，每张是一个地方的印象手记。
+// 卡片背面（页面中间）一条折线交错的 moments 时间线样式虚线，
+// 锐利折线（非平滑曲线）左右交错，把明信片串起来。
+// 估算每个 row 在容器中的中心 y 百分比（纯文字卡约 17%，gap 约 4.5%）
+function estimateTravelCenters(count: number): number[] {
+  const h = 17;
+  const gap = 4.5;
+  let y = 2;
+  const centers: number[] = [];
+  for (let i = 0; i < count; i++) {
+    centers.push(y + h / 2);
+    y += h + gap;
+  }
+  return centers;
+}
+
 function TravelLayout() {
   const places = travelContent;
+  const centers = estimateTravelCenters(places.length);
+  // 折线节点 x：卡片在左→偏向 40，在右→偏向 60，锐利交错
+  const xs = places.map((_, i) => (i % 2 === 0 ? 40 : 60));
+  // 折线路径：M 起点 L 下一节点 …
+  const d = xs
+    .map((x, i) => `${i === 0 ? "M" : "L"} ${x} ${centers[i]}`)
+    .join(" ");
   return (
-    <>
+    <div className="cr-travel-timeline">
+      {/* 折线虚线：在卡片背面 */}
+      <svg
+        className="cr-travel-timeline__svg"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden
+      >
+        <path
+          className="cr-travel-timeline__path"
+          d={d}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+
       {places.map((entry, i) => {
         const isLeft = i % 2 === 0;
         return (
@@ -110,7 +142,7 @@ function TravelLayout() {
           </div>
         );
       })}
-    </>
+    </div>
   );
 }
 
@@ -140,109 +172,51 @@ function ReadingLayout() {
   );
 }
 
-// —— Film：剧照（16:9 + 胶片孔装饰）+ 导演 + 场景，多篇 ——
-function FilmLayout() {
-  const entries = filmContent;
+// —— Hobby：参考 Professional 样式——顶部索引（点击平滑滚动）+ 分区。
+// 美术、摄影、运动、音乐、写作，每项一个分区：标题 + 说明 + 标签。
+function HobbyLayout() {
+  const entries = hobbyContent;
   return (
     <>
+      {/* 索引 */}
+      <nav className="reveal professional-index" style={next()} aria-label="爱好索引">
+        {entries.map((e, i) => (
+          <span key={e.name} className="professional-index__wrap">
+            {i > 0 && <span className="professional-index__sep">·</span>}
+            <span
+              className="professional-index__item"
+              onClick={() =>
+                document.getElementById(`hobby-${e.name}`)?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              {e.name}
+            </span>
+          </span>
+        ))}
+      </nav>
+
       {entries.map((c, i) => (
-        <div key={i} className="reveal" style={next()}>
-          {i > 0 && <div className="cr-divider" />}
-          <div className="image-slot cr-film-still block rounded-[2px]">
-            在这里放入让你记住的那个画面
-          </div>
-          <h1 className="mt-6 font-serif text-3xl leading-snug text-ember">
-            {c.title}
-          </h1>
-          <p className="mt-2 text-sm text-ember-soft">
-            {c.director} · {c.year}
-          </p>
-          <p className="mt-8 font-serif text-base leading-loose text-ember">
-            {c.scene}
-          </p>
-        </div>
-      ))}
-    </>
-  );
-}
-
-// —— Object：居中标本卡 + 左右三角形箭头切换 ——
-function ObjectLayout() {
-  const objects = objectContent;
-  const [idx, setIdx] = useState(0);
-  const obj = objects[idx];
-
-  const go = (dir: number) => {
-    setIdx((prev) => (prev + dir + objects.length) % objects.length);
-  };
-
-  return (
-    <div className="cr-object-stage reveal" style={next()}>
-      {/* 左箭头 */}
-      <button
-        type="button"
-        className="cr-object-arrow cr-object-arrow--left"
-        onClick={() => go(-1)}
-        aria-label="上一个"
-      >
-        <span className="cr-object-arrow__tri" />
-      </button>
-
-      {/* 标本卡 */}
-      <div className="cr-object-center">
-        <div className="image-slot cr-object-card mx-auto block rounded-[2px]">
-          物件照片
-        </div>
-        <h1 className="mt-6 text-center font-serif text-3xl leading-snug text-ember">
-          {obj.name}
-        </h1>
-        <p className="mt-2 text-center text-sm text-ember-faint">
-          {obj.origin}
-        </p>
-        <p className="mt-8 font-serif text-base leading-loose text-ember">
-          {obj.story}
-        </p>
-        <p className="cr-object-pager mt-6 text-center text-xs text-ember-faint">
-          {idx + 1} / {objects.length}
-        </p>
-      </div>
-
-      {/* 右箭头 */}
-      <button
-        type="button"
-        className="cr-object-arrow cr-object-arrow--right"
-        onClick={() => go(1)}
-        aria-label="下一个"
-      >
-        <span className="cr-object-arrow__tri" />
-      </button>
-    </div>
-  );
-}
-
-// —— Food：Ideas 式虚线卡片框，多篇 ——
-function FoodLayout() {
-  const entries = foodContent;
-  return (
-    <>
-      {entries.map((c, i) => (
-        <div key={i} className="reveal cr-food-card" style={next()}>
-          <h1 className="font-serif text-3xl leading-snug text-ember">
+        <section
+          key={c.name}
+          id={`hobby-${c.name}`}
+          className={i === 0 ? "mt-16" : "mt-16"}
+        >
+          <h2 className="reveal professional-section-title" style={next()}>
             {c.name}
-          </h1>
-          <p className="mt-2 text-sm text-ember-soft">
-            {c.kitchen} · {c.season}
-          </p>
-          <p className="mt-8 font-serif text-base leading-loose text-ember">
-            {c.memory}
-          </p>
-          <div className="cr-food-tags mt-8">
-            {c.ingredients.map((ing, j) => (
-              <span key={j} className="cr-food-tag">{ing}</span>
-            ))}
+          </h2>
+          <div className="reveal professional-entry" style={next()}>
+            <p className="professional-entry__summary">{c.detail}</p>
+            <div className="professional-stack">
+              {c.tags.map((tag) => (
+                <span key={tag} className="professional-stack__tag">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
       ))}
+      <div className="mb-32" />
     </>
   );
 }
