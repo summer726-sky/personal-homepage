@@ -471,6 +471,8 @@ export const avatarChat = {
   suggestions: [
     "平时喜欢干什么",
     "喜欢听什么歌",
+    "有什么兴趣爱好",
+    "最近在忙什么",
   ],
   // 占位回复：访客每发一句，按顺序轮换其中一条
   pendingReplies: [

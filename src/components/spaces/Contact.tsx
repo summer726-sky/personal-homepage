@@ -6,13 +6,71 @@
 // 文字直接落在墙上。hover 时整行轻轻亮起，地址微微向前（右）。
 // 名录之后是「留言」反馈框（写入 Supabase），末尾是「数字分身」：
 // 一道分割线后，三框对话直接呈现（无二级入口）。
+//
+// 数据源（2026-10-08 起）：联系方式从 Supabase profiles 表读取；
+// content.ts 的 contact.entries 保留为 fallback。
 
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { contact } from "@/data/content";
+import { getSupabase } from "@/lib/supabase";
 import { AvatarChat } from "./AvatarChat";
 import { Feedback } from "./Feedback";
 
+type ProfileEntry = { label: string; value: string; href: string | null };
+type ProfileRow = {
+  name: string;
+  personal_email: string;
+  tju_email: string;
+  wechat: string;
+  github: string;
+  avatar_key: string;
+};
+
+async function fetchProfile(): Promise<{
+  entries: ProfileEntry[];
+  avatarSrc: string | null;
+} | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("name, personal_email, tju_email, wechat, github, avatar_key")
+    .limit(1)
+    .single();
+  if (error || !data) return null;
+
+  const p = data as ProfileRow;
+  const entries: ProfileEntry[] = [
+    { label: "个人邮箱", value: p.personal_email, href: `mailto:${p.personal_email}` },
+    { label: "TJU 邮箱", value: p.tju_email, href: `mailto:${p.tju_email}` },
+    { label: "微信", value: p.wechat, href: null },
+    { label: "GitHub", value: p.github, href: p.github },
+  ];
+
+  let avatarSrc: string | null = null;
+  if (p.avatar_key) {
+    avatarSrc = supabase.storage
+      .from("images")
+      .getPublicUrl(`profile/${p.avatar_key}`).data.publicUrl;
+  }
+  return { entries, avatarSrc };
+}
+
 export function Contact({ onBack }: { onBack: () => void }) {
+  const [profileData, setProfileData] = useState<{
+    entries: ProfileEntry[];
+    avatarSrc: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    fetchProfile().then((d) => {
+      if (d) setProfileData(d);
+    });
+  }, []);
+
+  const entries = profileData?.entries ?? (contact.entries as ProfileEntry[]);
+  const avatarSrc = profileData?.avatarSrc ?? null;
+
   return (
     <>
       {/* 房间层：极淡冷蓝灰单块晕染，信息行是主角，晕染最弱 */}
@@ -43,7 +101,7 @@ export function Contact({ onBack }: { onBack: () => void }) {
 
         {/* 名录：一行一个联系方式，直接、不绕弯 */}
         <div className="contact-list mt-10">
-          {contact.entries.map((e, i) => {
+          {entries.map((e, i) => {
             const inner = (
               <>
                 <span className="contact-row__label">{e.label}</span>
@@ -73,16 +131,16 @@ export function Contact({ onBack }: { onBack: () => void }) {
 
         {/* 留言反馈：名录之后，Supabase 存储 */}
         <div className="mt-14">
-          <Feedback startIndex={2 + contact.entries.length} />
+          <Feedback startIndex={2 + entries.length} />
         </div>
 
         {/* 数字分身：反馈下方一道分割线，三框对话直接呈现 */}
         <div
           className="avchat-divider reveal"
-          style={{ "--i": 4 + contact.entries.length } as CSSProperties}
+          style={{ "--i": 4 + entries.length } as CSSProperties}
           aria-hidden
         />
-        <AvatarChat />
+        <AvatarChat avatarSrc={avatarSrc} />
       </div>
     </>
   );

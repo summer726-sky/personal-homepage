@@ -1674,12 +1674,7 @@ button.door {
     font-size: 0.84rem;
   }
   .avchat-chips {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .avchat-chips::-webkit-scrollbar {
-    display: none;
+    flex-wrap: wrap;
   }
   .avchat-chip {
     flex: none;
