@@ -8,9 +8,20 @@
 //   背景序列随滚动滑动（rAF 缓动，参考 Things 的过渡节奏），
 //   序列以 20 张为周期平铺循环。
 // 入场：进入 gallery 时播放一次 bloom 显现；切换照片不触发。
+//
+// 数据源（2026-10-08 起）：photography 内容从 Supabase contents +
+//   Storage 加载；静态 photoGallery 保留为 fallback。
+//   - contents 查询：type=things, category=photography, order sort_order asc
+//   - Storage 路径：images/things/photography/{image_key}.jpg
+//   - 公开 URL 由 supabase.storage.from("images").getPublicUrl(path) 生成
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { photoGallery, type PhotoEntry } from "@/data/content";
+import { getSupabase } from "@/lib/supabase";
+
+// 内部扩展：带上真实图片 URL（DB 拿到时填，fallback 时为 undefined，
+// 渲染时回退到原 CSS 空白占位框）
+type GalleryPhoto = PhotoEntry & { src?: string };
 
 // 四行/列序列（桌面横向用 top，手机纵向用 left）
 // w/h: 缩略图尺寸；gap: 间距；opacity/blur: 极轻的层次差异
@@ -27,7 +38,52 @@ const REPEAT = 2;
 // 手机端断点（与 CSS 一致）
 const MOBILE_MQ = "(max-width: 720px)";
 
+// 约定：sort_order 1-7 为横屏，8-20 为竖屏。
+// 与真实素材规则一致（7 landscape + 13 portrait）。
+// 若 DB 将来新增 orientation 字段，改此处即可。
+function inferOrientation(sortOrder: number): PhotoEntry["orientation"] {
+  return sortOrder <= 7 ? "landscape" : "portrait";
+}
+
+type ContentRow = {
+  content_key: string;
+  subtitle: string | null;
+  content: string | null;
+  image_key: string;
+  sort_order: number;
+};
+
+// 从 Supabase 拉 photography 20 条，转成 GalleryPhoto[]。
+// 失败时返回 null，组件保留 fallback 静态数据。
+async function fetchPhotography(): Promise<GalleryPhoto[] | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from("contents")
+    .select("content_key, subtitle, content, image_key, sort_order")
+    .eq("type", "things")
+    .eq("category", "photography")
+    .order("sort_order", { ascending: true });
+
+  if (error || !data || data.length === 0) return null;
+
+  return (data as ContentRow[]).map((row) => {
+    const path = `things/photography/${row.image_key}.jpg`;
+    const url = supabase.storage.from("images").getPublicUrl(path).data.publicUrl;
+    return {
+      id: row.content_key,
+      caption: row.content ?? "（暂无说明）",
+      hint: row.subtitle ?? undefined,
+      orientation: inferOrientation(row.sort_order),
+      src: url,
+    } satisfies GalleryPhoto;
+  });
+}
+
 export function Gallery({ onBack }: { onBack: () => void }) {
+  // 初始用静态 fallback，DB 数据到达后替换
+  const [photos, setPhotos] = useState<GalleryPhoto[]>(photoGallery);
   const [current, setCurrent] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const lockRef = useRef(false);
@@ -36,8 +92,18 @@ export function Gallery({ onBack }: { onBack: () => void }) {
   const virtualRef = useRef(0); // 目标滚动量（每切一张 ±1）
   const currentRef = useRef(0); // 缓动后的滚动量
   const isMobileRef = useRef(false);
-  const photos = photoGallery;
   const N = photos.length;
+
+  // 挂载即从 Supabase 加载 photography；失败保留 fallback
+  useEffect(() => {
+    let cancelled = false;
+    fetchPhotography().then((rows) => {
+      if (cancelled || !rows || rows.length === 0) return;
+      setPhotos(rows);
+      setCurrent(0); // 重新对齐索引
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   // 监听视口宽度，切换桌面/手机布局
   useEffect(() => {
@@ -128,7 +194,15 @@ export function Gallery({ onBack }: { onBack: () => void }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const currentPhoto: PhotoEntry = photos[current];
+  const currentPhoto: GalleryPhoto = photos[current];
+
+  // 共享缩略图样式
+  const thumbBaseStyle = (row: (typeof GALLERY_ROWS)[number]): CSSProperties => ({
+    width: row.w,
+    height: row.h,
+    marginRight: isMobile ? 0 : row.gap,
+    marginBottom: isMobile ? row.gap : 0,
+  });
 
   return (
     <div
@@ -155,18 +229,25 @@ export function Gallery({ onBack }: { onBack: () => void }) {
                 filter: row.blur ? `blur(${row.blur}px)` : undefined,
               }}
             >
-              {strip.map((p, idx) => (
-                <span
-                  key={`${p.id}-${idx}`}
-                  className="gallery-thumb"
-                  style={{
-                    width: row.w,
-                    height: row.h,
-                    marginRight: isMobile ? 0 : row.gap,
-                    marginBottom: isMobile ? row.gap : 0,
-                  }}
-                />
-              ))}
+              {strip.map((p, idx) =>
+                p.src ? (
+                  <img
+                    key={`${p.id}-${idx}`}
+                    className="gallery-thumb"
+                    src={p.src}
+                    alt=""
+                    aria-hidden
+                    loading="lazy"
+                    style={{ ...thumbBaseStyle(row), objectFit: "cover" } as CSSProperties}
+                  />
+                ) : (
+                  <span
+                    key={`${p.id}-${idx}`}
+                    className="gallery-thumb"
+                    style={thumbBaseStyle(row)}
+                  />
+                )
+              )}
             </div>
           );
         })}
@@ -186,7 +267,16 @@ export function Gallery({ onBack }: { onBack: () => void }) {
         {/* 主内容区：照片 + 说明 */}
         <div className="gallery-main">
           <div className="gallery-photo-block">
-            <div className={`gallery-photo gallery-photo--${currentPhoto.orientation}`} />
+            {currentPhoto.src ? (
+              <img
+                src={currentPhoto.src}
+                alt={currentPhoto.caption || ""}
+                className={`gallery-photo gallery-photo--${currentPhoto.orientation}`}
+                style={{ objectFit: "cover" } as CSSProperties}
+              />
+            ) : (
+              <div className={`gallery-photo gallery-photo--${currentPhoto.orientation}`} />
+            )}
             <div className={`gallery-caption gallery-caption--${currentPhoto.orientation}`}>
               <p className="gallery-caption__main">{currentPhoto.caption}</p>
               {currentPhoto.hint && (
