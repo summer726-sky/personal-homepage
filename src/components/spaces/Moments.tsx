@@ -6,8 +6,47 @@
 // 时间标签写在时间线的另一侧（与卡片对面）。
 // 蓝调里渗入极淡琥珀色，稍微明快但不跳脱。
 
-import { type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { momentsSpace } from "@/data/content";
+import { getSupabase } from "@/lib/supabase";
+
+type MomentDBRow = {
+  content_key: string;
+  title: string | null;
+  subtitle: string | null;
+  content: string | null;
+  image_key: string | null;
+  sort_order: number;
+};
+
+async function fetchMoments(): Promise<
+  { id: string; time: string; body: string; hasImage: boolean; imageSrc: string }[] | null
+> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("contents")
+    .select("content_key, title, subtitle, content, image_key, sort_order")
+    .eq("type", "moments")
+    .order("sort_order", { ascending: true });
+  if (error || !data || data.length === 0) return null;
+  return (data as MomentDBRow[]).map((r) => {
+    let imageSrc = "";
+    if (r.image_key) {
+      // Storage 中 moments 图片全部为 .jpg（已逐一探测确认）
+      imageSrc = supabase.storage
+        .from("images")
+        .getPublicUrl(`moments/${r.image_key}.jpg`).data.publicUrl;
+    }
+    return {
+      id: r.content_key,
+      time: r.subtitle ?? "",
+      body: r.content ?? "",
+      hasImage: !!r.image_key,
+      imageSrc,
+    };
+  });
+}
 
 // 暖色光斑（琥珀偏）：在房间层按视口分布，宽屏两翼也是暖的
 const GLOWS = [
@@ -34,8 +73,26 @@ function estimateRowCenters(count: number): number[] {
   return centers;
 }
 
+type MomentView = {
+  id: string;
+  time: string;
+  body: string;
+  hasImage?: boolean;
+  imageSrc?: string;
+};
+
 export function Moments({ onBack }: { onBack: () => void }) {
-  const { ambient, entries } = momentsSpace;
+  const { ambient } = momentsSpace;
+  const [entries, setEntries] = useState<MomentView[]>(
+    momentsSpace.entries as unknown as MomentView[]
+  );
+
+  useEffect(() => {
+    fetchMoments().then((rows) => {
+      if (rows) setEntries(rows);
+    });
+  }, []);
+
   const centers = estimateRowCenters(entries.length);
 
   // 生成蜿蜒 SVG path（viewBox 0 0 100 100，y 用百分比）
@@ -146,7 +203,20 @@ export function Moments({ onBack }: { onBack: () => void }) {
                 style={{ "--i": 2 + i } as CSSProperties}
               >
                 {m.hasImage ? (
-                  <div className="moment-postcard__img">{m.imageDesc}</div>
+                  <div className="moment-postcard__img">
+                    {m.imageSrc ? (
+                      <img
+                        src={m.imageSrc}
+                        alt=""
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          display: "block",
+                        }}
+                      />
+                    ) : null}
+                  </div>
                 ) : null}
                 <p className="moment-postcard__body">{m.body}</p>
               </div>

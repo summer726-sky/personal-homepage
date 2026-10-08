@@ -4,7 +4,7 @@ import "./globals.css";
 import { profile } from "@/data/profile";
 
 export const metadata: Metadata = {
-  title: `${profile.name} · 私人空间`,
+  title: `${profile.name} · Home Space`,
   description: "推开一扇门，进入一个属于我的空间。",
 };
 

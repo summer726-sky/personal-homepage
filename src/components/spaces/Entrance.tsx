@@ -7,8 +7,9 @@
 // 房间铺满整个视口：天花板的暗带、低岸的几盏灯、
 // 地平线最后一缕暮光——宽屏下两侧是房间的延伸，不是死区。
 
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { entrance } from "@/data/content";
+import { getSupabase } from "@/lib/supabase";
 import { ArrowDown } from "./primitives";
 
 // 每行一个轻微的横向错位，让排版不死板
@@ -21,6 +22,25 @@ export function Entrance({
   onContinue: () => void;
   onContact: () => void;
 }) {
+  // 第二行问候语：优先用 profiles.name，失败回退 entrance.lines[1]
+  const [greeting, setGreeting] = useState(entrance.lines[1]);
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("name")
+        .limit(1)
+        .single();
+      if (!error && data?.name) {
+        setGreeting(`很高兴见到你，我是 ${data.name}。`);
+      }
+    })();
+  }, []);
+
+  const lines = [entrance.lines[0], greeting];
+
   return (
     <>
       {/* 房间层：铺满视口的色雾晕染（取代光斑）
@@ -47,7 +67,7 @@ export function Entrance({
           className="intro-block flex flex-col"
           style={{ marginTop: "2.2em", marginLeft: "-1em" }}
         >
-          {entrance.lines.map((line, i) => (
+          {lines.map((line, i) => (
             <p
               key={i}
               className="intro-line reveal font-serif leading-relaxed text-ember"

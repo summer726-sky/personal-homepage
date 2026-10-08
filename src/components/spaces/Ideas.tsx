@@ -7,9 +7,36 @@
 // 每张卡约 100-350 字，错落横向偏移 + 宽窄不一。
 // 环境比 Personal 更深一层、更安静。
 
-import { Fragment, type CSSProperties } from "react";
+import { Fragment, useEffect, useState, type CSSProperties } from "react";
 import { ideasSpace } from "@/data/content";
+import { getSupabase } from "@/lib/supabase";
 import { TraceImage, TraceLightDot, CLOCK_WARM_IMG } from "./traces";
+
+type IdeaDBRow = {
+  content_key: string;
+  title: string | null;
+  subtitle: string | null;
+  content: string | null;
+  sort_order: number;
+};
+
+async function fetchIdeas(): Promise<
+  { date: string; title?: string; body: string }[] | null
+> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from("contents")
+    .select("content_key, title, subtitle, content, sort_order")
+    .eq("type", "ideas")
+    .order("sort_order", { ascending: true });
+  if (error || !data || data.length === 0) return null;
+  return (data as IdeaDBRow[]).map((r) => ({
+    date: r.subtitle ?? "",
+    title: r.title ?? undefined,
+    body: r.content ?? "",
+  }));
+}
 
 // 微尘：比 Personal 更疏、更慢
 const SPECKS = Array.from({ length: 9 }, (_, i) => ({
@@ -26,9 +53,9 @@ const SHORE = [12, 34, 63, 84];
 // 卡片的错落：横向偏移 / 宽度。已移除旋转（深灰黑卡不需要）。
 const LAYOUT = [
   { ml: "0%", w: "30rem" },
-  { ml: "15%", w: "26rem" },
+  { ml: "10%", w: "26rem" },
   { ml: "3%", w: "31rem" },
-  { ml: "21%", w: "25.5rem" },
+  { ml: "15%", w: "25.5rem" },
   { ml: "6%", w: "29rem" },
 ];
 
@@ -63,11 +90,16 @@ const BACK_OFFSETS = [
 ];
 
 export function Ideas({ onBack }: { onBack: () => void }) {
-  const { ambient, entries, endNote } = ideasSpace;
+  const { ambient, endNote } = ideasSpace;
+  const [entries, setEntries] = useState(ideasSpace.entries);
 
-  // content.ts 中 entries 已按新→旧排列（十月初 → 八月末），
-  // 直接渲染即可，时间线最新在最上方。
-  // tone 从上到下递增：上亮下暗。
+  useEffect(() => {
+    fetchIdeas().then((rows) => {
+      if (rows) setEntries(rows);
+    });
+  }, []);
+
+  // 按 sort_order 顺序渲染；tone 从上到下递增：上亮下暗。
   const list = entries;
 
   return (

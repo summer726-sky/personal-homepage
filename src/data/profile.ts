@@ -3,7 +3,7 @@
 
 export const profile = {
   // 你的名字（中英文皆可，按你喜好）
-  name: "你的名字",
+  name: "高婉睿",
 
   // 一句非常简短的个人表达，会出现在首页 Hero
   tagline: "一句话，描述现在的你。",
